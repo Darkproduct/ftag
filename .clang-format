@@ -1,0 +1,16 @@
+---
+# We'll use defaults from the Google style, but with 4 columns indentation.
+BasedOnStyle: Google
+IndentWidth: 2
+---
+Language: Cpp
+# Use this in future versions of clang-format: IndentAccessModifiers: false
+AccessModifierOffset: -2
+# Force pointers to the type for C++.
+DerivePointerAlignment: false
+PointerAlignment: Left
+---
+Language: JavaScript
+# Use 100 columns for JS.
+ColumnLimit: 100
+...
