@@ -1,48 +1,39 @@
-#include <sqlite3.h>
-#include <unistd.h>
+#include "DatabaseClass.h"
 
-#include <cassert>
-#include <cstdlib>
+#include <stdio.h>
+
 #include <filesystem>
-#include <iostream>
 
-static int callback(void* NotUsed, int argc, char** argv, char** azColName) {
-  std::cerr << "Callback of sql statement" << std::endl;
-  return 0;
+DatabaseClass::DatabaseClass() {
+  createDirectory();
+  createDatbase();
 }
 
-int main(int argc, char const* argv[]) {
-  /*if (isatty(fileno(stdin))) {*/
-  /*  std::cerr << "No pipe found" << std::endl;*/
-  /*  return 1;*/
-  /*}*/
+DatabaseClass::~DatabaseClass() { sqlite3_close(db); }
 
-  auto home_dir = std::filesystem::path(std::getenv("HOME"));
-  auto data_dir = home_dir / std::filesystem::path(".local/state/ftag");
-  if (!std::filesystem::exists(data_dir)) {
-    if (!std::filesystem::create_directory(data_dir)) {
-      std::cerr << "Couln't create dir: " << data_dir << std::endl;
-      return (1);
+void DatabaseClass::createDirectory() {
+  if (!std::filesystem::exists(this->data_dir)) {
+    if (std::filesystem::create_directories(this->data_dir)) {
+      std::cerr << "Couldn't create dir" << data_dir << std::endl;
     }
   }
+}
 
-  auto database_filename = "ftag.db";
-  auto database_path = data_dir / database_filename;
-  sqlite3* db;
-  if (!std::filesystem::exists(database_path)) {
+void DatabaseClass::createDatabase() {
+  if (!std::filesystem::exists(this->database_filename)) {
     int rc =
-        sqlite3_open_v2(database_path.c_str(), &db,
+        sqlite3_open_v2(database_path.c_str(), &this->db,
                         SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nullptr);
     if (rc) {
-      std::cerr << "Can't create database: " << sqlite3_errmsg(db) << std::endl;
-      sqlite3_close(db);
+      std::cerr << "Can't create database: " << sqlite3_errmsg(this->db)
+                << std::endl;
+      sqlite3_close(this->db);
       return 1;
     }
 
     // TODO use R values
-    //
     char** errmsg;
-    auto query_create_files_table =
+    std::string query_create_files_table =
         std::string("CREATE TABLE files (id INTEGER PRIMARY KEY, path TEXT)");
     if (sqlite3_exec(db, query_create_files_table.c_str(), callback, nullptr,
                      errmsg)) {
@@ -88,17 +79,27 @@ int main(int argc, char const* argv[]) {
       return 1;
     }
   }
+}
 
-  assert(db);
+void getFiles() {
+  try {
+    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(command.c_str(), "r"),
+                                                  pclose);
+    if (!pipe) {
+      throw std::runtime_error("Failed to open pipe");
+    }
 
-  // TODO do shit
-  /*char *zErrMsg = 0;*/
-  /*int err = sqlite3_exec(db, argv[2], callback, 0, &zErrMsg);*/
-  /*if (err != SQLITE_OK) {*/
-  /*  fprintf(stderr, "SQL error: %s\n", zErrMsg);*/
-  /*  sqlite3_free(zErrMsg);*/
-  /*}*/
+    char buffer[128];
+    while (fgets(buffer, sizeof(buffer), pipe.get()) != nullptr) {
+      std::string line(buffer);
+      if (!line.empty() && line.back() == '\n') {
+        line.pop_back();
+      }
+      result.push_back(line);
+    }
 
-  sqlite3_close(db);
-  return 0;
+  } catch (const std::exception& e) {
+    std::cerr << "Error: " << e.what() << std::endl;
+    return 1;
+  }
 }
