@@ -1,21 +1,24 @@
 cmake_minimum_required(VERSION 3.16)
 project(ftag LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(sqlite3 REQUIRED)
+find_package(SQLite3 REQUIRED)
 add_subdirectory(vendor/argparse)
 
-include_directories(include)
+include_directories(
+  include
+  ${SQLite3_INCLUDE_DIRS}
+)
 
 add_executable(${PROJECT_NAME}
   src/main.cpp
   src/database.cpp
 )
 
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(${PROJECT_NAME} PRIVATE
   argparse
-  sqlite3
+  SQLite3
 )
 

@@ -1,12 +1,11 @@
 #pragma once
 
+#include <sqlite3.h>
 #include <unistd.h>
 
 #include <cassert>
 #include <string_view>
 #include <vector>
-
-#include "sqlite3.h"
 
 namespace ftag {
 using namespace std::literals::string_view_literals;
