@@ -3,7 +3,7 @@
 #include <filesystem>
 #include <iostream>
 
-#include "database.h"
+#include "database.hpp"
 
 int main(int argc, char const* argv[]) {
   if (isatty(fileno(stdin))) {
