@@ -6,10 +6,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(SQLite3 REQUIRED)
-add_subdirectory(vendor/argparse)
 
 include_directories(
   include
+  vendor/argparse  
   ${SQLite3_INCLUDE_DIRS}
 )
 
