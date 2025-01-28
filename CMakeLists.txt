@@ -12,13 +12,11 @@ include_directories(
   ${SQLite3_INCLUDE_DIRS}
 )
 
-add_executable(${PROJECT_NAME}
-  src/main.cpp
-  src/database.cpp
-)
+file(GLOB SOURCES "src/*.cpp")
+add_executable(${PROJECT_NAME} ${SOURCES})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
   argparse
-  SQLite3
+  SQLite::SQLite3
 )
 
