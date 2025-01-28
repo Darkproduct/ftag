@@ -3,8 +3,8 @@
 #include <filesystem>
 #include <iostream>
 
+#include "argparse/argparse.hpp"
 #include "ftag/database.hpp"
-#include "vendor/argparse/argparse.hpp"
 
 int main(int argc, char const* argv[]) {
   if (isatty(fileno(stdin))) {
