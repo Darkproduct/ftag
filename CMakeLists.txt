@@ -7,18 +7,19 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(SQLite3 REQUIRED)
 
+add_subdirectory(vendor/argparse)
+
 include_directories(
-  include  
+  include
+  vendor/argparse/include
   ${SQLite3_INCLUDE_DIRS}
 )
-
-
-include_directories(${CMAKE_SOURCE_DIR}/vendor)
 
 file(GLOB SOURCES "src/*.cpp")
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
+  argparse
   SQLite::SQLite3
 )
 

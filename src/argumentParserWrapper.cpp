@@ -7,11 +7,12 @@
 
 #include "argparse/argparse.hpp"
 
-argumentParserWrapper::argumentParserWrapper() : program("ftag", "0.0.1") {
-  InitializeCommands();
+ftag::ArgumentParserWrapper::ArgumentParserWrapper()
+    : program("ftag", "0.0.1") {
+  initializeCommands();
 }
 
-void argumentParserWrapper::parseArguments(int argc, char const* argv[]) {
+void ftag::ArgumentParserWrapper::parseArguments(int argc, char const* argv[]) {
   try {
     program.parse_args(argc, argv);
 
@@ -32,7 +33,7 @@ void argumentParserWrapper::parseArguments(int argc, char const* argv[]) {
   }
 }
 
-void argumentParserWrapper::InitializeCommands() {
+void ftag::ArgumentParserWrapper::initializeCommands() {
   // set up import command, add configs to importParser, add arguments, add to
   // program and update map
   argparse::ArgumentParser importParser("import",
@@ -48,7 +49,7 @@ void argumentParserWrapper::InitializeCommands() {
   commandHandlers["import"] = [this]() { handleImportCommand(); };
 }
 
-void argumentParserWrapper::handleImportCommand() {
+void ftag::ArgumentParserWrapper::handleImportCommand() {
   // returns true when inout is from terminal
   if (isatty(fileno(stdin))) {
     // When input is from a terminal

@@ -1,11 +1,20 @@
+#pragma once
 
+#include <functional>
 
 #include "argparse/argparse.hpp"
 
-class argumentParserWrapper {
+namespace ftag {
+
+class ArgumentParserWrapper {
 public:
-  argumentParserWrapper();
+  ArgumentParserWrapper();
   void parseArguments(int argc, char const* argv[]);
+  void setInportCallback(std::function<void()> callback);
+
+private:
+  void initializeCommands();
+  void handleImportCommand();
 
 private:
   argparse::ArgumentParser program;
@@ -13,6 +22,6 @@ private:
   argparse::ArgumentParser searchParser;
 
   std::unordered_map<std::string, std::function<void()>> commandHandlers;
-  void InitializeCommands();
-  void handleImportCommand();
 };
+
+}  // namespace ftag
