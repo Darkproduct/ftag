@@ -1,4 +1,4 @@
-#include "ftag/argumentParser.hpp"
+#include "ftag/argumentParserWrapper.hpp"
 
 #include <unistd.h>
 
@@ -7,9 +7,11 @@
 
 #include "argparse/argparse.hpp"
 
-argumentParserWrapper::argumentParserWrapper() : program("ftag", "0.0.1") {}
+argumentParserWrapper::argumentParserWrapper() : program("ftag", "0.0.1") {
+  InitializeCommands();
+}
 
-void argumentParserWrapper::parseArguments(int argc, char* argv[]) {
+void argumentParserWrapper::parseArguments(int argc, char const* argv[]) {
   try {
     program.parse_args(argc, argv);
 

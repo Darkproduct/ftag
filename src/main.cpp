@@ -2,23 +2,21 @@
 
 #include <filesystem>
 #include <iostream>
+#include <iterator>
 
 #include "argparse/argparse.hpp"
+#include "ftag/argumentParserWrapper.hpp"
 #include "ftag/database.hpp"
 
 int main(int argc, char const* argv[]) {
-  if (isatty(fileno(stdin))) {
-    for (auto const& dir_entry :
-         std::filesystem::recursive_directory_iterator(".")) {
-      std::cout << dir_entry << std::endl;
-    }
-  } else {
-    for (std::string str{}; std::getline(std::cin, str);) {
-      std::cout << str << std::endl;
-    }
+  ftag::Database db;
+  argumentParserWrapper wrapper;
+
+  for (auto i = 0; i < argc; i++) {
+    std::cout << argv[i] << std::endl;
   }
 
-  ftag::Database db;
+  wrapper.parseArguments(argc, argv);
 
   return 0;
 }
