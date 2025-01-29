@@ -2,18 +2,21 @@
 
 #include <iostream>
 
-#include "ftag/argumentParserWrapper.hpp"
-#include "ftag/database.hpp"
+#include "argparse/argparse.hpp"
+#include "ftag/file_importer.hpp"
 
-int main(int argc, char const* argv[]) {
-  ftag::Database db;
-  ftag::ArgumentParserWrapper wrapper;
+int main(int argc, const char* argv[]) {
+  argparse::ArgumentParser program("ftag", "0.0.1");
 
-  for (auto i = 0; i < argc; i++) {
-    std::cout << argv[i] << std::endl;
+  ftag::FileImporter::AddImportParser(program);
+
+  program.parse_args(argc, argv);
+
+  if (program.is_subcommand_used("import")) {
+    return ftag::FileImporter::import(program);
+  } else {
+    std::cerr << program << std::endl;
   }
-
-  wrapper.parseArguments(argc, argv);
 
   return 0;
 }

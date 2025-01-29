@@ -5,7 +5,9 @@
 #include <iostream>
 #include <ostream>
 
-ftag::Database::Database() {
+namespace ftag {
+
+Database::Database() {
   std::string home_dir = std::filesystem::path(std::getenv("HOME"));
   std::filesystem::path data_dir =
       home_dir / std::filesystem::path(".local/state/ftag");
@@ -33,9 +35,9 @@ ftag::Database::Database() {
   }
 }
 
-ftag::Database::~Database() { sqlite3_close(db); }
+Database::~Database() { sqlite3_close(db); }
 
-void ftag::Database::prepareStatements() {
+void Database::prepareStatements() {
   /*sqlite3_stmt **ps_create_table;*/
   /*char **pzTail;*/
   /*sqlite3_prepare_v2(db, query_create_files_table,*/
@@ -45,7 +47,7 @@ void ftag::Database::prepareStatements() {
   /*sqlite3_step(ps_create_table);*/
 }
 
-void ftag::Database::createTables() {
+void Database::createTables() {
   execute_query(query_create_files_table);
   execute_query(query_create_tags_table);
   execute_query(query_create_tag_map_table);
@@ -56,7 +58,13 @@ static int callback(void* NotUsed, int argc, char** argv, char** azColName) {
   return 0;
 }
 
-void ftag::Database::execute_query(std::string_view query) {
+void Database::updateDatabase(const std::vector<FileInfo>& updated) {}
+
+void Database::updateDatabase(const std::vector<Tag>& tags) {}
+
+std::vector<FileInfo> Database::search(/* TODO */) { return {}; }
+
+void Database::execute_query(std::string_view query) {
   char** errmsg = nullptr;
   if (auto ret = sqlite3_exec(db, query.data(), callback, nullptr, errmsg);
       ret) {
@@ -71,5 +79,4 @@ void ftag::Database::execute_query(std::string_view query) {
     std::abort();
   }
 }
-
-void ftag::Database::getFiles() {}
+}  // namespace ftag

@@ -7,6 +7,8 @@
 #include <string_view>
 #include <vector>
 
+#include "ftag/tag_data.hpp"
+
 namespace ftag {
 using namespace std::literals::string_view_literals;
 
@@ -15,7 +17,9 @@ public:
   Database();
   ~Database();
 
-  void getFiles();
+  void updateDatabase(const std::vector<FileInfo>& data);
+  void updateDatabase(const std::vector<Tag>& tags);
+  std::vector<FileInfo> search(/* TODO */);
 
 private:
   void prepareStatements();
