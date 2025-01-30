@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
       "working dir.\n\n"
       "The import function also support pipes e.g.\n"
       " - find . | ftag import\n"
-      " - ftag import < list_of_files.txt\n\n");
+      " - ftag import < list_of_files.txt");
 
   program.add_subparser(import_command);
 
@@ -46,15 +46,30 @@ int main(int argc, char* argv[]) {
 
   // Call import
   if (program.is_subcommand_used("import")) {
-    ftag::FileImporter importer(program["--verbose"] == true,
-                                import_command["--autotag"] == true);
+    ftag::FileImporter::ImportOptions import_options;
+    import_options.verbose = program["--verbose"] == true;
+    import_options.autotag = import_command["--autotag"] == true;
 
-    // TODO: Check if remaining args has values and if yes use explicit import
+    ftag::FileImporter importer(import_options);
+
     try {
-      return importer.import(program.get<std::vector<std::string>>("files"));
+      auto files_argument =
+          import_command.get<std::vector<std::string>>("files");
+      importer.import(files_argument);
     } catch (std::logic_error) {
-      return importer.import();
+      if (isatty(fileno(stdin))) {
+        // TODO: Maybe add a question [Y/n] or something if you really want to
+        // add the cwd. Can also be set with -y or something
+        importer.importFileWalk();
+      } else {
+        std::vector<std::string> files_piped;
+        for (std::string str{}; std::getline(std::cin, str);) {
+          files_piped.emplace_back(str);
+        }
+        importer.import(files_piped);
+      }
     }
+    return 0;
   }
 
   // Call search

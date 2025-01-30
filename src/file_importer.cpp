@@ -4,51 +4,41 @@
 #include <stdexcept>
 
 namespace ftag {
-FileImporter::FileImporter(bool verbose, bool autotag) {
-  std::cerr << "import command: verbose=" << verbose << ", autotag=" << autotag
-            << std::endl;
+FileImporter::FileImporter(const ImportOptions& options) : options(options) {
+  std::cerr << "import command: verbose=" << options.verbose
+            << ", autotag=" << options.autotag << std::endl;
 }
 
-int FileImporter::import() const {
+void FileImporter::importFileWalk() const {
   std::vector<std::filesystem::path> paths;
 
-  if (isatty(fileno(stdin))) {
-    // When input is from a terminal
-    // TODO: Maybe add a question [Y/n] or something if you really want to add
-    // the cwd. Can also be set with -y or something
-    for (auto const& dir_entry :
-         std::filesystem::recursive_directory_iterator(".")) {
-      paths.emplace_back(dir_entry.path());
-    }
-  } else {
-    // When input is from a pipe or file
-    for (std::string str{}; std::getline(std::cin, str);) {
-      paths.emplace_back(str);
-    }
+  for (auto const& dir_entry :
+       std::filesystem::recursive_directory_iterator(".")) {
+    paths.emplace_back(dir_entry.path());
   }
 
   return filterFiles(paths);
 }
 
-int FileImporter::import(const std::vector<std::string>& files) const {
+void FileImporter::import(const std::vector<std::string>& files) const {
   std::vector<std::filesystem::path> paths;
-  try {
-    for (const auto& f : files) {
-      if (!std::filesystem::exists(f)) {
-        std::cerr << "provided file '" << f << "' does not exist" << std::endl;
-        std::exit(1);
-      }
-      std::cerr << f << " exists" << std::endl;
-      paths.emplace_back(f);
+
+  for (const auto& f : files) {
+    if (!std::filesystem::exists(f)) {
+      std::cerr << "provided file '" << f << "' does not exist" << std::endl;
+      std::exit(1);
     }
-  } catch (std::logic_error) {
+
+    paths.emplace_back(f);
   }
 
   return filterFiles(paths);
 }
 
-int FileImporter::filterFiles(
+void FileImporter::filterFiles(
     const std::vector<std::filesystem::path>& paths) const {
+  std::cerr << "Found " << paths.size() << " files to import" << std::endl;
+
   // TODO:
   // 1. Filter files
   //   - ignore hidden files
@@ -59,7 +49,5 @@ int FileImporter::filterFiles(
   //   - for images and other media files extract them from file
   //   - if auto tagging, use AI to determine image content?
   // 3. Add files and tags to database
-
-  return 0;
 }
 }  // namespace ftag

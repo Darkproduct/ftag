@@ -1,7 +1,5 @@
 #pragma once
 
-#include <unistd.h>
-
 #include <filesystem>
 #include <string>
 #include <vector>
@@ -9,12 +7,23 @@
 namespace ftag {
 class FileImporter {
 public:
-  FileImporter(bool verbose, bool autotag);
+  struct ImportOptions {
+    bool verbose = false;
+    bool autotag = false;
+  };
 
-  int import() const;
-  int import(const std::vector<std::string>& files) const;
+public:
+  FileImporter(const ImportOptions& options);
+
+  void importFileWalk() const;
+  void import(const std::vector<std::string>& files) const;
 
 private:
-  int filterFiles(const std::vector<std::filesystem::path>& paths) const;
+  void filterFiles(const std::vector<std::filesystem::path>& paths) const;
+  void extractTags(const std::vector<std::filesystem::path>& paths) const;
+  void autoTag() const;
+
+private:
+  const ImportOptions options;
 };
 }  // namespace ftag
