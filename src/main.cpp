@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "argparse/argparse.hpp"
+#include "ftag/TagClass.hpp"
 #include "ftag/file_importer.hpp"
 #include "ftag/search.hpp"
 
@@ -47,6 +48,7 @@ int main(int argc, char* argv[]) {
   tagging_command.add_argument("--deletefiletags")
       .help("Delte tags from files")
       .flag();
+  tagging_command.add_argument("files").help("files to import").remaining();
 
   // Parse arguments
   try {
@@ -86,8 +88,8 @@ int main(int argc, char* argv[]) {
 
   // Call search
   if (program.is_subcommand_used("search")) {
-    ftag::Search::ImportOptions options;
-    ftag::Search seeker(options);
+    ftag::Search::ImportOptions search_options;
+    ftag::Search seeker(search_options);
 
     std::cout << "Search Command Executed" << std::endl;
 
@@ -102,6 +104,29 @@ int main(int argc, char* argv[]) {
     return 0;
   }
 
+  // Tag Search
   if (program.is_subcommand_used("tag")) {
+    ftag::TagClass::ImportOptions tagging_options;
+
+    tagging_options.verbose = program["--verbose"] == true;
+
+    tagging_options.addtag = import_command["--addtag"] == true;
+    tagging_options.addtag = import_command["--deletetag"] == true;
+    tagging_options.addtag = import_command["--tagfiles"] == true;
+    tagging_options.addtag = import_command["--deletefiletags"] == true;
+    ftag::TagClass tagger(tagging_options);
+
+    try {
+      auto files = search_command.get<std::vector<std::string>>("files");
+      std::cout << files.size() << " files provided" << std::endl;
+      tagger.addtag(
+          files);  // TODO: Ja muss irgendwie anders ablaufen bin mir nicht
+                   // sicher ob der Shiot in die Main soll je anch dem welches
+                   // Argument reinkommt oder in der Klasse
+
+    } catch (std::logic_error& e) {
+      std::cout << "No files provided" << std::endl;
+    }
+    return 0;
   }
 }
