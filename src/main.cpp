@@ -33,14 +33,26 @@ int main(int argc, char* argv[]) {
   argparse::ArgumentParser search_command("search");
   search_command.add_description("Search for a tag");
 
+  search_command.add_argument("files").help("files to import").remaining();
+
   program.add_subparser(search_command);
+
+  // tagging
+  argparse::ArgumentParser tagging_command("tag");
+  tagging_command.add_description("Halde tagging functionality");
+
+  tagging_command.add_argument("--addtag").help("add tags").flag();
+  tagging_command.add_argument("--deletetag").help("delete tags").flag();
+  tagging_command.add_argument("--tagfiles").help("Tag files").flag();
+  tagging_command.add_argument("--deletefiletags")
+      .help("Delte tags from files")
+      .flag();
 
   // Parse arguments
   try {
     program.parse_args(argc, argv);
   } catch (const std::exception& err) {
     std::cerr << err.what() << std::endl;
-    std::cerr << program << std::endl;
     std::exit(1);
   }
 
@@ -74,12 +86,22 @@ int main(int argc, char* argv[]) {
 
   // Call search
   if (program.is_subcommand_used("search")) {
-    // TODO
+    ftag::Search::ImportOptions options;
+    ftag::Search seeker(options);
+
     std::cout << "Search Command Executed" << std::endl;
-    // return ftag::Search::search(program);
+
+    try {
+      auto files = search_command.get<std::vector<std::string>>("files");
+      std::cout << files.size() << " files provided" << std::endl;
+      seeker.search(files);
+
+    } catch (std::logic_error& e) {
+      std::cout << "No files provided" << std::endl;
+    }
     return 0;
   }
 
-  std::cerr << program << std::endl;
-  return 0;
+  if (program.is_subcommand_used("tag")) {
+  }
 }

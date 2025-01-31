@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include "ftag/tag_data.hpp"
 
@@ -8,8 +9,15 @@ namespace ftag {
 
 class Search {
 public:
-  Search(/* pass parser options */);
+  struct ImportOptions {};
+  Search(const ImportOptions& options);
 
-  FileInfo search(const std::string& search) { return {}; }
+  // TODO: Now just search for a single tagadd search for file names and other
+  // stuff in the db
+  void search(const std::vector<std::string>& input_files);
+
+private:
+  ImportOptions options;
 };
 }  // namespace ftag
+//
