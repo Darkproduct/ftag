@@ -24,6 +24,7 @@ public:
 private:
   void prepareStatements();
   void createTables();
+  void AddTags();
 
   // Use only for create tables and so on. Not for possible user input
   void execute_query(std::string_view query);

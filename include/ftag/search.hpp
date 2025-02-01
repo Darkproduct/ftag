@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 
+#include "ftag/database.hpp"
 #include "ftag/tag_data.hpp"
 
 namespace ftag {
@@ -10,7 +11,7 @@ namespace ftag {
 class Search {
 public:
   struct ImportOptions {};
-  Search(const ImportOptions& options);
+  Search(const ImportOptions& options, const Database& database);
 
   // TODO: Now just search for a single tagadd search for file names and other
   // stuff in the db
@@ -18,6 +19,7 @@ public:
 
 private:
   ImportOptions options;
+  Database database;
 };
 }  // namespace ftag
 //

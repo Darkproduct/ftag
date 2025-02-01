@@ -37,15 +37,9 @@ Database::Database() {
 
 Database::~Database() { sqlite3_close(db); }
 
-void Database::prepareStatements() {
-  /*sqlite3_stmt **ps_create_table;*/
-  /*char **pzTail;*/
-  /*sqlite3_prepare_v2(db, query_create_files_table,*/
-  /*                   query_create_files_table.size(), ps_create_table,*/
-  /*                   pzTail);*/
-  /**/
-  /*sqlite3_step(ps_create_table);*/
-}
+void Database::prepareStatements() {}
+
+void AddTags() {}
 
 void Database::createTables() {
   execute_query(query_create_files_table);

@@ -5,10 +5,13 @@
 
 #include "argparse/argparse.hpp"
 #include "ftag/TagClass.hpp"
+#include "ftag/database.hpp"
 #include "ftag/file_importer.hpp"
 #include "ftag/search.hpp"
 
 int main(int argc, char* argv[]) {
+  ftag::Database db;
+
   argparse::ArgumentParser program("ftag", "0.0.1");
   program.add_argument("--verbose").help("increase output verbosity").flag();
 
@@ -64,7 +67,7 @@ int main(int argc, char* argv[]) {
     import_options.verbose = program["--verbose"] == true;
     import_options.autotag = import_command["--autotag"] == true;
 
-    ftag::FileImporter importer(import_options);
+    ftag::FileImporter importer(import_options, db);
 
     try {
       auto files_argument =
@@ -89,7 +92,7 @@ int main(int argc, char* argv[]) {
   // Call search
   if (program.is_subcommand_used("search")) {
     ftag::Search::ImportOptions search_options;
-    ftag::Search seeker(search_options);
+    ftag::Search seeker(search_options, db);
 
     std::cout << "Search Command Executed" << std::endl;
 

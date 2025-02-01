@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 
+#include "ftag/database.hpp"
 #include "ftag/tag_data.hpp"
 
 namespace ftag {
@@ -23,5 +24,6 @@ public:
 
 private:
   ImportOptions options;
+  Database database;
 };
 }  // namespace ftag

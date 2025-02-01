@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "ftag/database.hpp"
+
 namespace ftag {
 class FileImporter {
 public:
@@ -13,7 +15,7 @@ public:
   };
 
 public:
-  FileImporter(const ImportOptions& options);
+  FileImporter(const ImportOptions& options, const Database database);
 
   void importFileWalk() const;
   void import(const std::vector<std::string>& files) const;
@@ -25,5 +27,6 @@ private:
 
 private:
   const ImportOptions options;
+  Database database;
 };
 }  // namespace ftag

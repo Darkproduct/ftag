@@ -1,10 +1,16 @@
 #include "ftag/file_importer.hpp"
 
+#include <filesystem>
 #include <iostream>
 #include <stdexcept>
 
+#include "ftag/database.hpp"
+
 namespace ftag {
-FileImporter::FileImporter(const ImportOptions& options) : options(options) {
+
+FileImporter::FileImporter(const ImportOptions& options,
+                           const Database& database)
+    : options(options), database(database) {
   std::cerr << "import command: verbose=" << options.verbose
             << ", autotag=" << options.autotag << std::endl;
 }
@@ -12,12 +18,12 @@ FileImporter::FileImporter(const ImportOptions& options) : options(options) {
 void FileImporter::importFileWalk() const {
   std::vector<std::filesystem::path> paths;
 
-  for (auto const& dir_entry :
+  for (const auto& dir_entry :
        std::filesystem::recursive_directory_iterator(".")) {
     paths.emplace_back(dir_entry.path());
   }
 
-  return filterFiles(paths);
+  filterFiles(paths);
 }
 
 void FileImporter::import(const std::vector<std::string>& files) const {
@@ -28,11 +34,10 @@ void FileImporter::import(const std::vector<std::string>& files) const {
       std::cerr << "provided file '" << f << "' does not exist" << std::endl;
       std::exit(1);
     }
-
     paths.emplace_back(f);
   }
 
-  return filterFiles(paths);
+  filterFiles(paths);
 }
 
 void FileImporter::filterFiles(
@@ -42,12 +47,13 @@ void FileImporter::filterFiles(
   // TODO:
   // 1. Filter files
   //   - ignore hidden files
-  //   - ignore some files types? well see
-  //   - maybe only add some files (images, videos, pdfs)
+  //   - ignore some file types? (TBD)
+  //   - maybe only add some files (images, videos, PDFs)
   // 2. Add tags
-  //   - add default tags (file creation data, file size, more?)
-  //   - for images and other media files extract them from file
-  //   - if auto tagging, use AI to determine image content?
+  //   - add default tags (file creation date, file size, etc.)
+  //   - for images and other media, extract metadata
+  //   - if auto-tagging is enabled, use AI to determine content?
   // 3. Add files and tags to database
 }
+
 }  // namespace ftag
