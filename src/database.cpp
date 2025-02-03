@@ -1,5 +1,6 @@
 #include "ftag/database.hpp"
 
+
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
@@ -39,7 +40,11 @@ Database::~Database() { sqlite3_close(db); }
 
 void Database::prepareStatements() {}
 
-void AddTags() {}
+void Database::AddTags(const Tag& tag_data) {
+ std::string query = "INSERT INTO tags (name) VALUES ('" + tag_data.name + "');";
+ execute_query(query);
+  
+}
 
 void Database::createTables() {
   execute_query(query_create_files_table);
@@ -52,9 +57,6 @@ static int callback(void* NotUsed, int argc, char** argv, char** azColName) {
   return 0;
 }
 
-void Database::updateDatabase(const std::vector<FileInfo>& updated) {}
-
-void Database::updateDatabase(const std::vector<Tag>& tags) {}
 
 std::vector<FileInfo> Database::search(/* TODO */) { return {}; }
 

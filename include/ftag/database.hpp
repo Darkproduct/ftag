@@ -9,6 +9,7 @@
 
 #include "ftag/tag_data.hpp"
 
+
 namespace ftag {
 using namespace std::literals::string_view_literals;
 
@@ -17,14 +18,13 @@ public:
   Database();
   ~Database();
 
-  void updateDatabase(const std::vector<FileInfo>& data);
-  void updateDatabase(const std::vector<Tag>& tags);
   std::vector<FileInfo> search(/* TODO */);
+  void AddTags(const Tag& tag_data);
 
+  
 private:
   void prepareStatements();
   void createTables();
-  void AddTags();
 
   // Use only for create tables and so on. Not for possible user input
   void execute_query(std::string_view query);

@@ -116,7 +116,7 @@ int main(int argc, char* argv[]) {
     tagging_options.addtag = import_command["--deletetag"] == true;
     tagging_options.addtag = import_command["--tagfiles"] == true;
     tagging_options.addtag = import_command["--deletefiletags"] == true;
-    ftag::TagClass tagger(tagging_options);
+    ftag::TagClass tagger(tagging_options, db);
 
     try {
       auto files = search_command.get<std::vector<std::string>>("files");
