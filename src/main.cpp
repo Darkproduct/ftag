@@ -112,7 +112,6 @@ int main(int argc, char* argv[]) {
     ftag::TagClass::ImportOptions tagging_options;
 
     tagging_options.verbose = program["--verbose"] == true;
-
     tagging_options.addtag = import_command["--addtag"] == true;
     tagging_options.addtag = import_command["--deletetag"] == true;
     tagging_options.addtag = import_command["--tagfiles"] == true;

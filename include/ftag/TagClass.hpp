@@ -17,9 +17,10 @@ public:
     bool tagfiles = false;
     bool deletefiletags = false;
   };
-  TagClass(const ImportOptions& options);
+  TagClass(const ImportOptions& options, const Database& database);
 
-  // TODO: Now just for single file and tag
+
+  void start(const std::vector<std::string>& input_files);
   void addtag(const std::vector<std::string>& input_files);
 
 private:

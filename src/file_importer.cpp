@@ -2,17 +2,15 @@
 
 #include <filesystem>
 #include <iostream>
-#include <stdexcept>
 
 #include "ftag/database.hpp"
 
 namespace ftag {
 
-FileImporter::FileImporter(const ImportOptions& options,
-                           const Database& database)
+FileImporter::FileImporter(const ImportOptions& options, const Database& database)
     : options(options), database(database) {
-  std::cerr << "import command: verbose=" << options.verbose
-            << ", autotag=" << options.autotag << std::endl;
+  // Constructor implementation
+  // You can add any initialization code here if needed
 }
 
 void FileImporter::importFileWalk() const {
