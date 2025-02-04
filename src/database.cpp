@@ -17,7 +17,7 @@ Database::Database() {
   std::filesystem::path database_path = data_dir / database_filename;
 
   if (!std::filesystem::exists(data_dir)) {
-    if (std::filesystem::create_directories(data_dir)) {
+    if (!std::filesystem::create_directories(data_dir)) {
       std::cerr << "Couldn't create dir" << data_dir << std::endl;
       std::abort();
     }
@@ -30,7 +30,7 @@ Database::Database() {
     sqlite3_close(db);
     std::abort();
   }
-
+  
   if (is_new_database) {
     createTables();
   }
@@ -50,12 +50,14 @@ void Database::createTables() {
   execute_query(query_create_files_table);
   execute_query(query_create_tags_table);
   execute_query(query_create_tag_map_table);
+  std::cout << "Was geht ab" << std::endl;
 }
 
 static int callback(void* NotUsed, int argc, char** argv, char** azColName) {
   std::cerr << "Callback of sql statement" << std::endl;
   return 0;
 }
+
 
 
 std::vector<FileInfo> Database::search(/* TODO */) { return {}; }
