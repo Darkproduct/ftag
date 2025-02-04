@@ -2,6 +2,7 @@
 
 #include <exception>
 #include <iostream>
+#include <ostream>
 
 #include "argparse/argparse.hpp"
 #include "ftag/TagClass.hpp"
@@ -52,6 +53,7 @@ int main(int argc, char* argv[]) {
       .help("Delte tags from files")
       .flag();
   tagging_command.add_argument("files").help("files to import").remaining();
+  program.add_subparser(tagging_command);
 
   // Parse arguments
   try {
@@ -63,6 +65,9 @@ int main(int argc, char* argv[]) {
 
   // Call import
   if (program.is_subcommand_used("import")) {
+
+    std::cout << "Test" << std::endl;
+
     ftag::FileImporter::ImportOptions import_options;
     import_options.verbose = program["--verbose"] == true;
     import_options.autotag = import_command["--autotag"] == true;
@@ -86,11 +91,11 @@ int main(int argc, char* argv[]) {
         importer.import(files_piped);
       }
     }
-    return 0;
+  
   }
 
   // Call search
-  if (program.is_subcommand_used("search")) {
+  else if(program.is_subcommand_used("search")) {
     ftag::Search::ImportOptions search_options;
     ftag::Search seeker(search_options, db);
 
@@ -98,37 +103,39 @@ int main(int argc, char* argv[]) {
 
     try {
       auto files = search_command.get<std::vector<std::string>>("files");
-      std::cout << files.size() << " files provided" << std::endl;
+      std::cout << files.size() << " tags provided" << std::endl;
       seeker.search(files);
 
     } catch (std::logic_error& e) {
-      std::cout << "No files provided" << std::endl;
+      std::cout << "No tags provided" << std::endl;
     }
-    return 0;
+    
   }
 
   // Tag Search
-  if (program.is_subcommand_used("tag")) {
+  else if(program.is_subcommand_used("tag")) {
     ftag::TagClass::ImportOptions tagging_options;
-
     tagging_options.verbose = program["--verbose"] == true;
-    tagging_options.addtag = import_command["--addtag"] == true;
-    tagging_options.addtag = import_command["--deletetag"] == true;
-    tagging_options.addtag = import_command["--tagfiles"] == true;
-    tagging_options.addtag = import_command["--deletefiletags"] == true;
+    tagging_options.addtag = tagging_command["--addtag"] == true;
+    tagging_options.deletetag = tagging_command["--deletetag"] == true;
+    tagging_options.tagfiles = tagging_command["--tagfiles"] == true;
+    tagging_options.deletefiletags = tagging_command["--deletefiletags"] == true;
+
     ftag::TagClass tagger(tagging_options, db);
-
     try {
-      auto files = search_command.get<std::vector<std::string>>("files");
-      std::cout << files.size() << " files provided" << std::endl;
-      tagger.addtag(
-          files);  // TODO: Ja muss irgendwie anders ablaufen bin mir nicht
-                   // sicher ob der Shiot in die Main soll je anch dem welches
-                   // Argument reinkommt oder in der Klasse
-
+      auto input_stream = tagging_command.get<std::vector<std::string>>("files");
+      std::cout << input_stream.size() << "input provided" << std::endl;
+      tagger.addtag(input_stream);
     } catch (std::logic_error& e) {
-      std::cout << "No files provided" << std::endl;
+      std::cout << "No input provided" << std::endl;
     }
-    return 0;
+    
   }
+
+  else {
+  std::cout << "No command given" << std::endl;
+
+}
+
+  return 0;
 }

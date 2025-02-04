@@ -30,8 +30,12 @@ Database::Database() {
     sqlite3_close(db);
     std::abort();
   }
-  
+
+  std::cout << "WWWas geht ab" << std::endl;
+ 
   if (is_new_database) {
+
+  std::cout << "Was geht ab" << std::endl;
     createTables();
   }
 }
@@ -47,6 +51,8 @@ void Database::AddTags(const Tag& tag_data) {
 }
 
 void Database::createTables() {
+
+  std::cout << "Was geht ab" << std::endl;
   execute_query(query_create_files_table);
   execute_query(query_create_tags_table);
   execute_query(query_create_tag_map_table);
@@ -73,7 +79,6 @@ void Database::execute_query(std::string_view query) {
       std::cerr << "sqlite3_exec error without error message. Return num "
                 << ret << std::endl;
     }
-    sqlite3_close(db);
     std::abort();
   }
 }
