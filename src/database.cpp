@@ -5,7 +5,6 @@
 #include <iostream>
 #include <ostream>
 #include <string_view>
-#include <utility>
 
 namespace ftag {
 
@@ -25,11 +24,15 @@ Database::Database() {
   }
 
   bool is_new_database = !std::filesystem::exists(database_path);
-  if (sqlite3_open_v2(database_path.c_str(), &db,
+  sqlite3* db_ptr;
+  if (sqlite3_open_v2(database_path.c_str(), &db_ptr,
                       SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nullptr)) {
-    std::cerr << "Can't create database: " << sqlite3_errmsg(db) << std::endl;
-    sqlite3_close(db);
+    std::cerr << "Can't create database: " << sqlite3_errmsg(db_ptr)
+              << std::endl;
+    sqlite3_close(db_ptr);
     std::abort();
+  } else {
+    db = sqlite_uptr(db_ptr);
   }
 
   if (is_new_database) {
@@ -39,8 +42,6 @@ Database::Database() {
   prepareStatements();
 }
 
-Database::~Database() { sqlite3_close(db); }
-
 std::vector<FileInfo> Database::search(/* TODO */) { return {}; }
 
 void Database::addTags(const Tag& tag_data) {
@@ -49,11 +50,10 @@ void Database::addTags(const Tag& tag_data) {
   execute_query(query);
 }
 
-Database::sqlite_stmt_ptr Database::prepareStatement(
-    std::string_view query) const {
+sqlite_stmt_ptr Database::prepareStatement(std::string_view query) const {
   sqlite3_stmt* ppStmt;
-  if (auto err =
-          sqlite3_prepare_v2(db, query.data(), query.size(), &ppStmt, nullptr);
+  if (auto err = sqlite3_prepare_v2(db.get(), query.data(), query.size(),
+                                    &ppStmt, nullptr);
       err != SQLITE_OK) {
     std::cerr << "Error preparing sql statement '" << query << "' code: " << err
               << std::endl;
@@ -68,7 +68,7 @@ void Database::prepareStatements() {
   statements[QueryStatements::InsertTags] = prepareStatement(query_insert_tags);
 }
 
-void Database::bind(QueryStatements stmt, const std::string args, ...) {
+void Database::bind(QueryStatements stmt, const std::string& args, ...) {
   // TODO:
 }
 
@@ -85,7 +85,8 @@ static int callback(void* NotUsed, int argc, char** argv, char** azColName) {
 
 void Database::execute_query(std::string_view query) const {
   char** errmsg = nullptr;
-  if (auto ret = sqlite3_exec(db, query.data(), callback, nullptr, errmsg);
+  if (auto ret =
+          sqlite3_exec(db.get(), query.data(), callback, nullptr, errmsg);
       ret) {
     if (errmsg != nullptr) {
       std::cerr << "sqlite3_exec error with message: " << *errmsg << std::endl;

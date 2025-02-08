@@ -7,10 +7,10 @@
 #include <array>
 #include <cassert>
 #include <cstdlib>
-#include <iostream>
 #include <unordered_map>
 #include <vector>
 
+#include "ftag/sqlite3_cpp_helpers.hpp"
 #include "ftag/tag_data.hpp"
 
 // https://stackoverflow.com/a/75619411/6411540
@@ -33,22 +33,8 @@ private:
     InsertTags,
   };
 
-  struct SqlStmtDeleter {
-    void operator()(sqlite3_stmt* stmt) const {
-      std::cerr << "Call deleter of stmt" << std::endl;
-      if (auto err = sqlite3_finalize(stmt); err != SQLITE_OK) {
-        std::cerr << "error: sqlite finalize finished with error " << err
-                  << std::endl;
-        std::abort();
-      }
-    }
-  };
-
-  using sqlite_stmt_ptr = std::unique_ptr<sqlite3_stmt, SqlStmtDeleter>;
-
 public:
   Database();
-  ~Database();
 
   Database(Database&) = delete;
   Database& operator=(const Database&) = delete;
@@ -62,13 +48,13 @@ private:
   sqlite_stmt_ptr prepareStatement(std::string_view query) const;
   void prepareStatements();
 
-  void bind(QueryStatements stmt, const std::string args, ...);
+  void bind(QueryStatements stmt, const std::string& args, ...);
 
   // Use only for create tables and so on. Not for possible user input
   void execute_query(std::string_view query) const;
 
 private:
-  sqlite3* db;
+  sqlite_uptr db;
 
   constexpr static char query_create_files_table[] =
       "CREATE TABLE files (id INTEGER PRIMARY KEY, path TEXT)";
