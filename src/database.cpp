@@ -3,9 +3,9 @@
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
-#include <memory>
 #include <ostream>
 #include <string_view>
+#include <utility>
 
 namespace ftag {
 
@@ -14,7 +14,7 @@ Database::Database() {
   std::filesystem::path data_dir =
       home_dir / std::filesystem::path(".local/state/ftag");
 
-  std::string_view database_filename = "ftag.db"sv;
+  constexpr char database_filename[] = "ftag.db";
   std::filesystem::path database_path = data_dir / database_filename;
 
   if (!std::filesystem::exists(data_dir)) {
@@ -33,23 +33,27 @@ Database::Database() {
   }
 
   if (is_new_database) {
-    createTables();
+    createDatabase();
   }
 
-  // Test
-  std::cerr << "start prepare test" << std::endl;
-  {
-    auto test = prepareStatements(query_add_tag);
-    std::cerr << "prepare finished" << std::endl;
-  }
-  std::cerr << "after prepare test" << std::endl;
+  prepareStatements();
 }
 
 Database::~Database() { sqlite3_close(db); }
 
-Database::sqlite_stmt_ptr Database::prepareStatements(std::string_view query) {
+std::vector<FileInfo> Database::search(/* TODO */) { return {}; }
+
+void Database::addTags(const Tag& tag_data) {
+  std::string query =
+      "INSERT INTO tags (name) VALUES ('" + tag_data.name + "');";
+  execute_query(query);
+}
+
+Database::sqlite_stmt_ptr Database::prepareStatement(
+    std::string_view query) const {
   sqlite3_stmt* ppStmt;
-  if (auto err = sqlite3_prepare_v2(db, query.data(), -1, &ppStmt, nullptr);
+  if (auto err =
+          sqlite3_prepare_v2(db, query.data(), query.size(), &ppStmt, nullptr);
       err != SQLITE_OK) {
     std::cerr << "Error preparing sql statement '" << query << "' code: " << err
               << std::endl;
@@ -58,13 +62,17 @@ Database::sqlite_stmt_ptr Database::prepareStatements(std::string_view query) {
   return sqlite_stmt_ptr(ppStmt);
 }
 
-void Database::addTags(const Tag& tag_data) {
-  std::string query =
-      "INSERT INTO tags (name) VALUES ('" + tag_data.name + "');";
-  execute_query(query);
+void Database::prepareStatements() {
+  statements[QueryStatements::InsertFiles] =
+      prepareStatement(query_insert_files);
+  statements[QueryStatements::InsertTags] = prepareStatement(query_insert_tags);
 }
 
-void Database::createTables() {
+void Database::bind(QueryStatements stmt, const std::string args, ...) {
+  // TODO:
+}
+
+void Database::createDatabase() const {
   execute_query(query_create_files_table);
   execute_query(query_create_tags_table);
   execute_query(query_create_tag_map_table);
@@ -75,9 +83,7 @@ static int callback(void* NotUsed, int argc, char** argv, char** azColName) {
   return 0;
 }
 
-std::vector<FileInfo> Database::search(/* TODO */) { return {}; }
-
-void Database::execute_query(std::string_view query) {
+void Database::execute_query(std::string_view query) const {
   char** errmsg = nullptr;
   if (auto ret = sqlite3_exec(db, query.data(), callback, nullptr, errmsg);
       ret) {

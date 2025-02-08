@@ -3,13 +3,9 @@
 #include <iostream>
 #include <vector>
 
-#include "ftag/database.hpp"
-#include "ftag/tag_data.hpp"
-
 namespace ftag {
 
-Search::Search(const ImportOptions& options, const Database& database) 
- : options(options), database(){}
+Search::Search(const ImportOptions& options) : options(options) {}
 
 void Search::search(const std::vector<std::string>& input_files) {
   for (std::vector<std::string>::const_iterator it = input_files.begin();

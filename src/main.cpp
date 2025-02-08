@@ -11,8 +11,6 @@
 #include "ftag/search.hpp"
 
 int main(int argc, char* argv[]) {
-  ftag::Database db;
-
   argparse::ArgumentParser program("ftag", "0.0.1");
   program.add_argument("--verbose").help("increase output verbosity").flag();
 
@@ -71,7 +69,7 @@ int main(int argc, char* argv[]) {
     import_options.verbose = program["--verbose"] == true;
     import_options.autotag = import_command["--autotag"] == true;
 
-    ftag::FileImporter importer(import_options, db);
+    ftag::FileImporter importer(import_options);
 
     try {
       auto files_argument =
@@ -96,7 +94,7 @@ int main(int argc, char* argv[]) {
   // Call search
   else if (program.is_subcommand_used("search")) {
     ftag::Search::ImportOptions search_options;
-    ftag::Search seeker(search_options, db);
+    ftag::Search seeker(search_options);
 
     std::cout << "Search Command Executed" << std::endl;
 
@@ -121,7 +119,7 @@ int main(int argc, char* argv[]) {
     tagging_options.deletefiletags =
         tagging_command["--deletefiletags"] == true;
 
-    ftag::TagClass tagger(tagging_options, db);
+    ftag::TagClass tagger(tagging_options);
     try {
       auto input_stream =
           tagging_command.get<std::vector<std::string>>("files");

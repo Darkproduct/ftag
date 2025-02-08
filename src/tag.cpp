@@ -3,8 +3,7 @@
 
 namespace ftag {
 
-TagClass::TagClass(const ImportOptions& options, const Database& database)
-    : options(options), database(database) {}
+TagClass::TagClass(const ImportOptions& options) : options(options) {}
 
 void TagClass::addTag(const std::vector<std::string>& input_files) {
   Tag tag_data;

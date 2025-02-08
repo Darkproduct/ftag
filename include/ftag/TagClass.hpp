@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "ftag/database.hpp"
-#include "ftag/tag_data.hpp"
 
 namespace ftag {
 
@@ -17,7 +16,8 @@ public:
     bool tagfiles = false;
     bool deletefiletags = false;
   };
-  TagClass(const ImportOptions& options, const Database& database);
+
+  TagClass(const ImportOptions& options);
 
   void start(const std::vector<std::string>& input_files);
   void addTag(const std::vector<std::string>& input_files);

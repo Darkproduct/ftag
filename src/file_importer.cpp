@@ -3,16 +3,9 @@
 #include <filesystem>
 #include <iostream>
 
-#include "ftag/database.hpp"
-
 namespace ftag {
 
-FileImporter::FileImporter(const ImportOptions& options,
-                           const Database& database)
-    : options(options), database(database) {
-  // Constructor implementation
-  // You can add any initialization code here if needed
-}
+FileImporter::FileImporter(const ImportOptions& options) : options(options) {}
 
 void FileImporter::importFileWalk() const {
   std::vector<std::filesystem::path> paths;
