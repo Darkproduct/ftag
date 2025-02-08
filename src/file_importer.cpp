@@ -7,7 +7,8 @@
 
 namespace ftag {
 
-FileImporter::FileImporter(const ImportOptions& options, const Database& database)
+FileImporter::FileImporter(const ImportOptions& options,
+                           const Database& database)
     : options(options), database(database) {
   // Constructor implementation
   // You can add any initialization code here if needed

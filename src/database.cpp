@@ -1,10 +1,11 @@
 #include "ftag/database.hpp"
 
-
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
+#include <memory>
 #include <ostream>
+#include <string_view>
 
 namespace ftag {
 
@@ -31,40 +32,48 @@ Database::Database() {
     std::abort();
   }
 
-  std::cout << "WWWas geht ab" << std::endl;
- 
   if (is_new_database) {
-
-  std::cout << "Was geht ab" << std::endl;
     createTables();
   }
+
+  // Test
+  std::cerr << "start prepare test" << std::endl;
+  {
+    auto test = prepareStatements(query_add_tag);
+    std::cerr << "prepare finished" << std::endl;
+  }
+  std::cerr << "after prepare test" << std::endl;
 }
 
 Database::~Database() { sqlite3_close(db); }
 
-void Database::prepareStatements() {}
+Database::sqlite_stmt_ptr Database::prepareStatements(std::string_view query) {
+  sqlite3_stmt* ppStmt;
+  if (auto err = sqlite3_prepare_v2(db, query.data(), -1, &ppStmt, nullptr);
+      err != SQLITE_OK) {
+    std::cerr << "Error preparing sql statement '" << query << "' code: " << err
+              << std::endl;
+    std::abort();
+  }
+  return sqlite_stmt_ptr(ppStmt);
+}
 
-void Database::AddTags(const Tag& tag_data) {
- std::string query = "INSERT INTO tags (name) VALUES ('" + tag_data.name + "');";
- execute_query(query);
-  
+void Database::addTags(const Tag& tag_data) {
+  std::string query =
+      "INSERT INTO tags (name) VALUES ('" + tag_data.name + "');";
+  execute_query(query);
 }
 
 void Database::createTables() {
-
-  std::cout << "Was geht ab" << std::endl;
   execute_query(query_create_files_table);
   execute_query(query_create_tags_table);
   execute_query(query_create_tag_map_table);
-  std::cout << "Was geht ab" << std::endl;
 }
 
 static int callback(void* NotUsed, int argc, char** argv, char** azColName) {
   std::cerr << "Callback of sql statement" << std::endl;
   return 0;
 }
-
-
 
 std::vector<FileInfo> Database::search(/* TODO */) { return {}; }
 

@@ -65,7 +65,6 @@ int main(int argc, char* argv[]) {
 
   // Call import
   if (program.is_subcommand_used("import")) {
-
     std::cout << "Test" << std::endl;
 
     ftag::FileImporter::ImportOptions import_options;
@@ -91,11 +90,11 @@ int main(int argc, char* argv[]) {
         importer.import(files_piped);
       }
     }
-  
+
   }
 
   // Call search
-  else if(program.is_subcommand_used("search")) {
+  else if (program.is_subcommand_used("search")) {
     ftag::Search::ImportOptions search_options;
     ftag::Search seeker(search_options, db);
 
@@ -109,33 +108,34 @@ int main(int argc, char* argv[]) {
     } catch (std::logic_error& e) {
       std::cout << "No tags provided" << std::endl;
     }
-    
+
   }
 
   // Tag Search
-  else if(program.is_subcommand_used("tag")) {
+  else if (program.is_subcommand_used("tag")) {
     ftag::TagClass::ImportOptions tagging_options;
     tagging_options.verbose = program["--verbose"] == true;
     tagging_options.addtag = tagging_command["--addtag"] == true;
     tagging_options.deletetag = tagging_command["--deletetag"] == true;
     tagging_options.tagfiles = tagging_command["--tagfiles"] == true;
-    tagging_options.deletefiletags = tagging_command["--deletefiletags"] == true;
+    tagging_options.deletefiletags =
+        tagging_command["--deletefiletags"] == true;
 
     ftag::TagClass tagger(tagging_options, db);
     try {
-      auto input_stream = tagging_command.get<std::vector<std::string>>("files");
+      auto input_stream =
+          tagging_command.get<std::vector<std::string>>("files");
       std::cout << input_stream.size() << "input provided" << std::endl;
-      tagger.addtag(input_stream);
+      tagger.addTag(input_stream);
     } catch (std::logic_error& e) {
       std::cout << "No input provided" << std::endl;
     }
-    
+
   }
 
   else {
-  std::cout << "No command given" << std::endl;
-
-}
+    std::cout << "No command given" << std::endl;
+  }
 
   return 0;
 }

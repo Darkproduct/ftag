@@ -19,9 +19,8 @@ public:
   };
   TagClass(const ImportOptions& options, const Database& database);
 
-
   void start(const std::vector<std::string>& input_files);
-  void addtag(const std::vector<std::string>& input_files);
+  void addTag(const std::vector<std::string>& input_files);
 
 private:
   ImportOptions options;

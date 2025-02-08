@@ -15,7 +15,7 @@ public:
   };
 
 public:
- FileImporter(const ImportOptions& options, const Database& database);
+  FileImporter(const ImportOptions& options, const Database& database);
 
   void importFileWalk() const;
   void import(const std::vector<std::string>& files) const;
