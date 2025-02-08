@@ -50,6 +50,9 @@ public:
   Database();
   ~Database();
 
+  Database(Database&) = delete;
+  Database& operator=(const Database&) = delete;
+
   std::vector<FileInfo> search(/* TODO */);
   void addTags(const Tag& tag_data);
 
