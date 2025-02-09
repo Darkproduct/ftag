@@ -124,24 +124,21 @@ int main(int argc, char* argv[]) {
 
     ftag::FileImporter importer(import_options);
 
+    std::vector<std::string> paths;
     try {
-      auto files_argument =
-          import_command.get<std::vector<std::string>>("files");
-      importer.import(files_argument);
+      paths = import_command.get<std::vector<std::string>>("files");
     } catch (std::logic_error) {
       if (isatty(fileno(stdin))) {
         // TODO: Maybe add a question [Y/n] or something if you really want to
         // add the cwd. Can also be set with -y or something
-        importer.importFileWalk();
+        importer.import();
       } else {
-        std::vector<std::string> files_piped;
         for (std::string str{}; std::getline(std::cin, str);) {
-          files_piped.emplace_back(str);
+          paths.emplace_back(str);
         }
-        importer.import(files_piped);
       }
     }
-
+    importer.import(paths);
   }
 
   // Call search

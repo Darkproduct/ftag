@@ -1,5 +1,6 @@
 #include "ftag/file_importer.hpp"
 
+#include <filesystem>
 #include <iostream>
 
 namespace ftag {
@@ -7,34 +8,60 @@ namespace ftag {
 FileImporter::FileImporter(const Options& options)
     : options(options), database(options.db_path) {}
 
-void FileImporter::importFileWalk() const {
-  std::vector<std::filesystem::path> paths;
+void FileImporter::import(const std::vector<std::string>& paths) const {
+  if (paths.size() == 0) {
+    filterFiles(findFiles("."));
+  } else {
+    std::vector<std::filesystem::path> files(paths.size());
 
-  for (const auto& dir_entry :
-       std::filesystem::recursive_directory_iterator(".")) {
-    paths.emplace_back(dir_entry.path());
+    for (const auto& p : paths) {
+      if (!std::filesystem::exists(p)) {
+        std::cerr << "provided path '" << p << "' does not exist" << std::endl;
+        std::exit(1);
+      }
+
+      if (std::filesystem::is_directory(p)) {
+        auto f = findFiles(p);
+        files.insert(files.end(), f.begin(), f.end());
+      } else if (std::filesystem::is_regular_file(p)) {
+        files.emplace_back(p);
+      }
+    }
+
+    filterFiles(files);
   }
-
-  filterFiles(paths);
 }
 
-void FileImporter::import(const std::vector<std::string>& files) const {
-  std::vector<std::filesystem::path> paths;
+std::vector<std::filesystem::path> FileImporter::findFiles(
+    const std::filesystem::path& path) const {
+  std::vector<std::filesystem::path> files;
 
-  for (const auto& f : files) {
-    if (!std::filesystem::exists(f)) {
-      std::cerr << "provided file '" << f << "' does not exist" << std::endl;
-      std::exit(1);
+  auto it = std::filesystem::recursive_directory_iterator(path);
+  for (const auto& dir_entry : it) {
+    if (dir_entry.is_directory() && isHidden(dir_entry)) {
+      it.disable_recursion_pending();
+    } else if (dir_entry.is_regular_file() && !isHidden(dir_entry)) {
+      files.emplace_back(dir_entry.path());
+    } else if (dir_entry.is_regular_file() &&
+               dir_entry.path().filename() == ".gitignore") {
+      // TODO:
     }
-    paths.emplace_back(f);
   }
 
-  filterFiles(paths);
+  return files;
+}
+
+bool FileImporter::isHidden(const std::filesystem::path& path) const {
+  if (!options.ignore_hidden) {
+    return false;
+  }
+
+  return path.filename().string().starts_with(".");
 }
 
 void FileImporter::filterFiles(
-    const std::vector<std::filesystem::path>& paths) const {
-  std::cerr << "Found " << paths.size() << " files to import" << std::endl;
+    const std::vector<std::filesystem::path>& files) const {
+  std::cerr << "Found " << files.size() << " files to import" << std::endl;
 
   // TODO:
   // 1. Filter files

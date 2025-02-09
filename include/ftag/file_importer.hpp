@@ -14,19 +14,28 @@ public:
     bool verbose = false;
     bool reimport = false;
     bool autotag = false;
+
+    bool ignore_hidden = true;
+    bool respect_gitignore = true;
   };
 
 public:
   FileImporter(const Options& options);
 
-  void importFileWalk() const;
-  void import(const std::vector<std::string>& files) const;
+  void import(const std::vector<std::string>& paths = {}) const;
 
 private:
-  bool isHidden(const std::filesystem::path& path);
+  std::vector<std::filesystem::path> findFiles(
+      const std::filesystem::path& path) const;
 
-  void filterFiles(const std::vector<std::filesystem::path>& paths) const;
-  void extractTags(const std::vector<std::filesystem::path>& paths) const;
+private:
+  bool isHidden(const std::filesystem::path& path) const;
+
+private:
+  void filterFiles(const std::vector<std::filesystem::path>& files) const;
+
+private:
+  void extractTags(const std::vector<std::filesystem::path>& files) const;
   void autoTag() const;
 
 private:
