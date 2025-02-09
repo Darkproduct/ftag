@@ -1,16 +1,20 @@
 #pragma once
 
+#include <filesystem>
 #include <string>
 #include <vector>
 
 #include "ftag/database.hpp"
-#include "ftag/tag_data.hpp"
 
 namespace ftag {
 
 class Search {
 public:
-  struct ImportOptions {};
+  struct ImportOptions {
+    std::filesystem::path db_path;
+    bool verbose = false;
+  };
+
   Search(const ImportOptions& options);
 
   // TODO: Now just search for a single tagadd search for file names and other

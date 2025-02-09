@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -10,6 +11,7 @@ namespace ftag {
 class TagClass {
 public:
   struct ImportOptions {
+    std::filesystem::path db_path;
     bool verbose = false;
     bool addtag = false;
     bool deletetag = false;

@@ -5,7 +5,8 @@
 
 namespace ftag {
 
-FileImporter::FileImporter(const ImportOptions& options) : options(options) {}
+FileImporter::FileImporter(const ImportOptions& options)
+    : options(options), database(options.db_path) {}
 
 void FileImporter::importFileWalk() const {
   std::vector<std::filesystem::path> paths;

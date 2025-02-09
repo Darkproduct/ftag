@@ -1,14 +1,31 @@
 #include <unistd.h>
 
+#include <cstdlib>
 #include <exception>
 #include <iostream>
 #include <ostream>
 
 #include "argparse/argparse.hpp"
 #include "ftag/TagClass.hpp"
-#include "ftag/database.hpp"
 #include "ftag/file_importer.hpp"
 #include "ftag/search.hpp"
+
+std::filesystem::path getDatabasePath() {
+  std::string home_dir = std::filesystem::path(std::getenv("HOME"));
+
+  std::filesystem::path data_dir =
+      home_dir / std::filesystem::path(".local/state/ftag");
+
+  if (!std::filesystem::exists(data_dir)) {
+    if (!std::filesystem::create_directories(data_dir)) {
+      std::cerr << "Couldn't create dir" << data_dir << std::endl;
+      std::abort();
+    }
+  }
+
+  constexpr char database_filename[] = "ftag.db";
+  return data_dir / database_filename;
+}
 
 int main(int argc, char* argv[]) {
   argparse::ArgumentParser program("ftag", "0.0.1");
@@ -66,6 +83,7 @@ int main(int argc, char* argv[]) {
     std::cout << "Test" << std::endl;
 
     ftag::FileImporter::ImportOptions import_options;
+    import_options.db_path = getDatabasePath();
     import_options.verbose = program["--verbose"] == true;
     import_options.autotag = import_command["--autotag"] == true;
 
@@ -94,6 +112,9 @@ int main(int argc, char* argv[]) {
   // Call search
   else if (program.is_subcommand_used("search")) {
     ftag::Search::ImportOptions search_options;
+    search_options.db_path = getDatabasePath();
+    search_options.verbose = program["--verbose"] == true;
+
     ftag::Search seeker(search_options);
 
     std::cout << "Search Command Executed" << std::endl;
@@ -112,6 +133,7 @@ int main(int argc, char* argv[]) {
   // Tag Search
   else if (program.is_subcommand_used("tag")) {
     ftag::TagClass::ImportOptions tagging_options;
+    tagging_options.db_path = getDatabasePath();
     tagging_options.verbose = program["--verbose"] == true;
     tagging_options.addtag = tagging_command["--addtag"] == true;
     tagging_options.deletetag = tagging_command["--deletetag"] == true;
@@ -132,7 +154,8 @@ int main(int argc, char* argv[]) {
   }
 
   else {
-    std::cout << "No command given" << std::endl;
+    std::cerr << "No command given" << std::endl;
+    std::cerr << program << std::endl;
   }
 
   return 0;

@@ -1,16 +1,12 @@
 #pragma once
 
-#include <sqlite3.h>
-#include <unistd.h>
-
 #include <algorithm>
 #include <array>
-#include <cassert>
-#include <cstdlib>
+#include <memory>
 #include <unordered_map>
 #include <vector>
 
-#include "ftag/sqlite3_cpp_helpers.hpp"
+#include "ftag/database_statement.hpp"
 #include "ftag/tag_data.hpp"
 
 // https://stackoverflow.com/a/75619411/6411540
@@ -25,8 +21,14 @@ constexpr auto concat(const char (&... strings)[Len]) {
   return result;
 }
 
+// Forward declarations to avoid inclusion of <sqlite3.h> in a header
+struct sqlite3;
+struct sqlite3_context;
+
 namespace ftag {
 class Database {
+  friend class Statement;
+
 private:
   enum class QueryStatements {
     InsertFiles,
@@ -34,27 +36,28 @@ private:
   };
 
 public:
-  Database();
+  Database(const std::filesystem::path& db_path);
 
   Database(Database&) = delete;
   Database& operator=(const Database&) = delete;
 
-  std::vector<FileInfo> search(/* TODO */);
-  void addTags(const Tag& tag_data);
+  Database(Database&& db) = default;
+  Database& operator=(Database&& db) = default;
+
+  ~Database() = default;
+
+  struct Deleter {
+    void operator()(sqlite3* db) const;
+  };
+
+public:
+  void exec(std::string_view queries) const;
 
 private:
   void createDatabase() const;
 
-  sqlite_stmt_ptr prepareStatement(std::string_view query) const;
-  void prepareStatements();
-
-  void bind(QueryStatements stmt, const std::string& args, ...);
-
-  // Use only for create tables and so on. Not for possible user input
-  void execute_query(std::string_view query) const;
-
 private:
-  sqlite_uptr db;
+  std::unique_ptr<sqlite3, Deleter> db;
 
   constexpr static char query_create_files_table[] =
       "CREATE TABLE files (id INTEGER PRIMARY KEY, path TEXT)";
@@ -69,8 +72,6 @@ private:
       "INSERT INTO files (path) VALUES (?)";
   constexpr static char query_insert_tags[] =
       "INSERT INTO tags (name) VALUES (?)";
-
-  std::unordered_map<QueryStatements, sqlite_stmt_ptr> statements;
 
   std::vector<std::string> file_paths;
 };

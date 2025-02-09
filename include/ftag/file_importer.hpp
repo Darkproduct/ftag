@@ -10,6 +10,7 @@ namespace ftag {
 class FileImporter {
 public:
   struct ImportOptions {
+    std::filesystem::path db_path;
     bool verbose = false;
     bool autotag = false;
   };

@@ -5,7 +5,8 @@
 
 namespace ftag {
 
-Search::Search(const ImportOptions& options) : options(options) {}
+Search::Search(const ImportOptions& options)
+    : options(options), database(options.db_path) {}
 
 void Search::search(const std::vector<std::string>& input_files) {
   for (std::vector<std::string>::const_iterator it = input_files.begin();
