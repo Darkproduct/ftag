@@ -9,25 +9,28 @@
 namespace ftag {
 class FileImporter {
 public:
-  struct ImportOptions {
+  struct Options {
     std::filesystem::path db_path;
     bool verbose = false;
+    bool reimport = false;
     bool autotag = false;
   };
 
 public:
-  FileImporter(const ImportOptions& options);
+  FileImporter(const Options& options);
 
   void importFileWalk() const;
   void import(const std::vector<std::string>& files) const;
 
 private:
+  bool isHidden(const std::filesystem::path& path);
+
   void filterFiles(const std::vector<std::filesystem::path>& paths) const;
   void extractTags(const std::vector<std::filesystem::path>& paths) const;
   void autoTag() const;
 
 private:
-  ImportOptions options;
+  Options options;
   Database database;
 };
 }  // namespace ftag

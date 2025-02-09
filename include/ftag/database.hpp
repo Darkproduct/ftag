@@ -2,12 +2,11 @@
 
 #include <algorithm>
 #include <array>
+#include <filesystem>
 #include <memory>
-#include <unordered_map>
 #include <vector>
 
 #include "ftag/database_statement.hpp"
-#include "ftag/tag_data.hpp"
 
 // https://stackoverflow.com/a/75619411/6411540
 template <unsigned... Len>

@@ -6,7 +6,6 @@
 #include <ostream>
 
 #include "argparse/argparse.hpp"
-#include "ftag/TagClass.hpp"
 #include "ftag/file_importer.hpp"
 #include "ftag/search.hpp"
 
@@ -35,6 +34,9 @@ int main(int argc, char* argv[]) {
   argparse::ArgumentParser import_command("import");
   import_command.add_description("Handle import functionality");
 
+  import_command.add_argument("--reimport")
+      .help("update files already known by ftag")
+      .flag();
   import_command.add_argument("--autotag")
       .help("enable automatic tagging")
       .flag();
@@ -53,22 +55,54 @@ int main(int argc, char* argv[]) {
   argparse::ArgumentParser search_command("search");
   search_command.add_description("Search for a tag");
 
-  search_command.add_argument("files").help("files to import").remaining();
+  search_command.add_argument("pattern").help("search");
 
   program.add_subparser(search_command);
 
-  // tagging
-  argparse::ArgumentParser tagging_command("tag");
-  tagging_command.add_description("Halde tagging functionality");
+  // ftag tag
+  argparse::ArgumentParser tag_command("tag");
+  tag_command.add_description("Add, edit or remove tags");
 
-  tagging_command.add_argument("--addtag").help("add tags").flag();
-  tagging_command.add_argument("--deletetag").help("delete tags").flag();
-  tagging_command.add_argument("--tagfiles").help("Tag files").flag();
-  tagging_command.add_argument("--deletefiletags")
-      .help("Delte tags from files")
-      .flag();
-  tagging_command.add_argument("files").help("files to import").remaining();
-  program.add_subparser(tagging_command);
+  argparse::ArgumentParser tag_add_command("add");
+  tag_add_command.add_description("Add new tag");
+  tag_command.add_subparser(tag_add_command);
+
+  argparse::ArgumentParser tag_edit_command("edit");
+  tag_edit_command.add_description("Edit tag");
+  tag_command.add_subparser(tag_edit_command);
+
+  argparse::ArgumentParser tag_delete_command("delete");
+  tag_delete_command.add_description("Delete tag");
+  tag_command.add_subparser(tag_delete_command);
+
+  program.add_subparser(tag_command);
+
+  // ftag file
+  argparse::ArgumentParser file_command("file");
+  file_command.add_description("Tag, track or untrack files");
+
+  argparse::ArgumentParser file_tag_command("tag");
+  file_tag_command.add_description("Change file tags");
+
+  argparse::ArgumentParser file_tag_add_command("add");
+  file_tag_add_command.add_description("Add tag to file");
+  file_tag_command.add_subparser(file_tag_add_command);
+
+  argparse::ArgumentParser file_tag_remove_command("remove");
+  file_tag_remove_command.add_description("Remove tag from file");
+  file_tag_command.add_subparser(file_tag_remove_command);
+
+  file_command.add_subparser(file_tag_command);
+
+  argparse::ArgumentParser file_track_command("track");
+  file_track_command.add_description("Add file to ftag");
+  file_command.add_subparser(file_track_command);
+
+  argparse::ArgumentParser file_untrack_command("untrack");
+  file_untrack_command.add_description("Remove file from ftag");
+  file_command.add_subparser(file_untrack_command);
+
+  program.add_subparser(file_command);
 
   // Parse arguments
   try {
@@ -82,9 +116,10 @@ int main(int argc, char* argv[]) {
   if (program.is_subcommand_used("import")) {
     std::cout << "Test" << std::endl;
 
-    ftag::FileImporter::ImportOptions import_options;
+    ftag::FileImporter::Options import_options;
     import_options.db_path = getDatabasePath();
     import_options.verbose = program["--verbose"] == true;
+    import_options.reimport = import_command["--reimport"] == true;
     import_options.autotag = import_command["--autotag"] == true;
 
     ftag::FileImporter importer(import_options);
@@ -111,46 +146,26 @@ int main(int argc, char* argv[]) {
 
   // Call search
   else if (program.is_subcommand_used("search")) {
-    ftag::Search::ImportOptions search_options;
+    ftag::Search::Options search_options;
     search_options.db_path = getDatabasePath();
     search_options.verbose = program["--verbose"] == true;
 
     ftag::Search seeker(search_options);
 
-    std::cout << "Search Command Executed" << std::endl;
-
-    try {
-      auto files = search_command.get<std::vector<std::string>>("files");
-      std::cout << files.size() << " tags provided" << std::endl;
-      seeker.search(files);
-
-    } catch (std::logic_error& e) {
-      std::cout << "No tags provided" << std::endl;
-    }
-
+    std::cerr << "TODO" << std::endl;
+    std::abort();
   }
 
-  // Tag Search
+  // Call tag
   else if (program.is_subcommand_used("tag")) {
-    ftag::TagClass::ImportOptions tagging_options;
-    tagging_options.db_path = getDatabasePath();
-    tagging_options.verbose = program["--verbose"] == true;
-    tagging_options.addtag = tagging_command["--addtag"] == true;
-    tagging_options.deletetag = tagging_command["--deletetag"] == true;
-    tagging_options.tagfiles = tagging_command["--tagfiles"] == true;
-    tagging_options.deletefiletags =
-        tagging_command["--deletefiletags"] == true;
+    std::cerr << "TODO" << std::endl;
+    std::abort();
+  }
 
-    ftag::TagClass tagger(tagging_options);
-    try {
-      auto input_stream =
-          tagging_command.get<std::vector<std::string>>("files");
-      std::cout << input_stream.size() << "input provided" << std::endl;
-      tagger.addTag(input_stream);
-    } catch (std::logic_error& e) {
-      std::cout << "No input provided" << std::endl;
-    }
-
+  // Call file
+  else if (program.is_subcommand_used("file")) {
+    std::cerr << "TODO" << std::endl;
+    std::abort();
   }
 
   else {

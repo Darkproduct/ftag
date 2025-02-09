@@ -10,19 +10,19 @@ namespace ftag {
 
 class Search {
 public:
-  struct ImportOptions {
+  struct Options {
     std::filesystem::path db_path;
     bool verbose = false;
   };
 
-  Search(const ImportOptions& options);
+  Search(const Options& options);
 
   // TODO: Now just search for a single tagadd search for file names and other
   // stuff in the db
   void search(const std::vector<std::string>& input_files);
 
 private:
-  ImportOptions options;
+  Options options;
   Database database;
 };
 }  // namespace ftag

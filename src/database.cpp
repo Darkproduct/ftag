@@ -2,7 +2,6 @@
 
 #include <sqlite3.h>
 
-#include <filesystem>
 #include <iostream>
 #include <ostream>
 #include <string_view>

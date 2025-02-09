@@ -10,22 +10,18 @@ namespace ftag {
 
 class TagClass {
 public:
-  struct ImportOptions {
+  struct Options {
     std::filesystem::path db_path;
     bool verbose = false;
-    bool addtag = false;
-    bool deletetag = false;
-    bool tagfiles = false;
-    bool deletefiletags = false;
   };
 
-  TagClass(const ImportOptions& options);
+  TagClass(const Options& options);
 
   void start(const std::vector<std::string>& input_files);
   void addTag(const std::vector<std::string>& input_files);
 
 private:
-  ImportOptions options;
+  Options options;
   Database database;
 };
 }  // namespace ftag

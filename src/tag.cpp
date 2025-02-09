@@ -3,7 +3,7 @@
 
 namespace ftag {
 
-TagClass::TagClass(const ImportOptions& options)
+TagClass::TagClass(const Options& options)
     : options(options), database(options.db_path) {}
 
 void TagClass::addTag(const std::vector<std::string>& input_files) {
@@ -12,9 +12,4 @@ void TagClass::addTag(const std::vector<std::string>& input_files) {
       input_files[0];  // I just assume that the first entry is the tag
 }
 
-void TagClass::start(const std::vector<std::string>& input_files) {
-  if (options.addtag == true) {
-    TagClass::addTag(input_files);
-  }
-}
 }  // namespace ftag

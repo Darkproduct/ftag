@@ -1,11 +1,10 @@
 #include "ftag/file_importer.hpp"
 
-#include <filesystem>
 #include <iostream>
 
 namespace ftag {
 
-FileImporter::FileImporter(const ImportOptions& options)
+FileImporter::FileImporter(const Options& options)
     : options(options), database(options.db_path) {}
 
 void FileImporter::importFileWalk() const {

@@ -11,13 +11,13 @@ enum class FileState {
 };
 
 struct Tag {
-  std::string name = ""; // Default to empty string
-  std::vector<std::string> aliases; // Automatically empty
-  std::vector<Tag> tags; // Automatically empty
+  std::string name = "";
+  std::vector<std::string> aliases;
+  std::vector<Tag> tags;
 };
 
 struct FileInfo {
-  std::filesystem::path path = {}; // Default to empty path
-  std::vector<Tag> tags; // Automatically empty
-  FileState state = FileState::INSERT; // Default to INSERT
+  std::filesystem::path path = {};
+  std::vector<Tag> tags;
+  FileState state = FileState::INSERT;
 };
