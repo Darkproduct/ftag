@@ -40,11 +40,18 @@ std::vector<std::filesystem::path> FileImporter::findFiles(
   for (const auto& dir_entry : it) {
     if (dir_entry.is_directory() && isHidden(dir_entry)) {
       it.disable_recursion_pending();
+    } else if (dir_entry.is_directory()) {
+      // TODO: see gitignore TODO below
     } else if (dir_entry.is_regular_file() && !isHidden(dir_entry)) {
       files.emplace_back(dir_entry.path());
-    } else if (dir_entry.is_regular_file() &&
+    } else if (options.respect_gitignore && dir_entry.is_regular_file() &&
                dir_entry.path().filename() == ".gitignore") {
-      // TODO:
+      // TODO: read gitignore and apply it
+      // Could be difficult because some files might be already added to the
+      // files vector
+      // Maybe we need to check on every directory we recurse into if it
+      // contains a gitignore file. This would be the only way to ensure no
+      // files are already commited to the files vector
     }
   }
 
