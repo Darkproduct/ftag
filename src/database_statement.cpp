@@ -4,6 +4,7 @@
 
 #include <initializer_list>
 #include <iostream>
+#include <ostream>
 
 #include "ftag/database.hpp"
 
@@ -64,7 +65,7 @@ void Statement::bind(const int index, const std::string_view value) {
                         static_cast<int>(value.size()), SQLITE_TRANSIENT);
   check(ret);
 }
-
+/*
 template <class... Args>
 void Statement::bind(const Args&... args) {
   int pos = 0;
@@ -82,8 +83,28 @@ void Statement::bind(const std::tuple<Types...>& tuple,
                      std::index_sequence<Indices...>) {
   bind(std::get<Indices>(tuple)...);
 }
+*/
+void Statement::executeStep() {
+  int return_code = sqlite3_step(stmt.get());
+  if (return_code == SQLITE_DONE){
+    std::cout << "query finished" << std::endl;
+    return;
+  }
+  else if (return_code == SQLITE_ROW){
+    //SELECT id, tag FROM tags;
+    //Go through every row and print out all the relevant tags
+    int id = sqlite3_column_int(stmt.get(), 0);
+    const char* tag = reinterpret_cast<const char*>(sqlite3_column_text(stmt.get(), 1));
 
-void Statement::executeStep() {}
+    std::cout << "Output is: " << id << " | " << tag << std::endl;
+ 
+  }
+  else {
+    // TODO: Just pass all other arguments to the chekc function 
+    check(return_code);
+    executeStep();
+  }
+}
 
 void Statement::check(const int ret) {
   if (ret != SQLITE_OK) {
