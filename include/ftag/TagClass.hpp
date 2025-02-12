@@ -19,6 +19,7 @@ public:
 
   void start(const std::vector<std::string>& input_files);
   void addTag(const std::vector<std::string>& input_files);
+  void searchTag(const std::vector<std::string>& input_files);
 
 private:
   Options options;

@@ -1,11 +1,13 @@
 #include <unistd.h>
 
+#include <chrono>
 #include <cstdlib>
 #include <exception>
 #include <iostream>
 #include <ostream>
 
 #include "argparse/argparse.hpp"
+#include "ftag/TagClass.hpp"
 #include "ftag/file_importer.hpp"
 #include "ftag/search.hpp"
 
@@ -155,8 +157,18 @@ int main(int argc, char* argv[]) {
 
   // Call tag
   else if (program.is_subcommand_used("tag")) {
-    std::cerr << "TODO" << std::endl;
-    std::abort();
+    ftag::TagClass::Options tag_options;
+    tag_options.db_path = getDatabasePath();
+    tag_options.verbose = false;
+
+    ftag::TagClass tagger(tag_options);
+    if (tag_command.is_subcommand_used("add")) {
+      tagger.addTag({"Test"});
+    }
+    if (tag_command.is_subcommand_used("edit")) {
+      tagger.searchTag({"Test"});
+    }
+
   }
 
   // Call file

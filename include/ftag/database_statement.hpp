@@ -39,13 +39,14 @@ public:
   void bind(const int index, const std::string_view value);
 
   template <class... Args>
-  void bind(const Args&... args);
+  void bindMany(const Args&... args);
 
   template <typename... Types>
-  void bind(const std::tuple<Types...>& tuple);
+  void bindMany(const std::tuple<Types...>& tuple);
 
   template <typename... Types, std::size_t... Indices>
-  void bind(const std::tuple<Types...>& tuple, std::index_sequence<Indices...>);
+  void bindMany(const std::tuple<Types...>& tuple,
+                std::index_sequence<Indices...>);
 
   void executeStep();
 

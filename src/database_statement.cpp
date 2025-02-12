@@ -65,42 +65,41 @@ void Statement::bind(const int index, const std::string_view value) {
                         static_cast<int>(value.size()), SQLITE_TRANSIENT);
   check(ret);
 }
-/*
+
 template <class... Args>
-void Statement::bind(const Args&... args) {
+void Statement::bindMany(const Args&... args) {
   int pos = 0;
   (void)std::initializer_list<int>{
       ((void)bind(++pos, std::forward<decltype(args)>(args)), 0)...};
 }
 
 template <typename... Types>
-void Statement::bind(const std::tuple<Types...>& tuple) {
+void Statement::bindMany(const std::tuple<Types...>& tuple) {
   bind(tuple, std::index_sequence_for<Types...>());
 }
 
 template <typename... Types, std::size_t... Indices>
-void Statement::bind(const std::tuple<Types...>& tuple,
-                     std::index_sequence<Indices...>) {
+void Statement::bindMany(const std::tuple<Types...>& tuple,
+                         std::index_sequence<Indices...>) {
   bind(std::get<Indices>(tuple)...);
 }
-*/
+
 void Statement::executeStep() {
   int return_code = sqlite3_step(stmt.get());
-  if (return_code == SQLITE_DONE){
+  if (return_code == SQLITE_DONE) {
     std::cout << "query finished" << std::endl;
     return;
-  }
-  else if (return_code == SQLITE_ROW){
-    //SELECT id, tag FROM tags;
-    //Go through every row and print out all the relevant tags
+  } else if (return_code == SQLITE_ROW) {
+    // SELECT id, tag FROM tags;
+    // Go through every row and print out all the relevant tags
     int id = sqlite3_column_int(stmt.get(), 0);
-    const char* tag = reinterpret_cast<const char*>(sqlite3_column_text(stmt.get(), 1));
+    const char* tag =
+        reinterpret_cast<const char*>(sqlite3_column_text(stmt.get(), 1));
 
     std::cout << "Output is: " << id << " | " << tag << std::endl;
- 
-  }
-  else {
-    // TODO: Just pass all other arguments to the chekc function 
+
+  } else {
+    // TODO: Just pass all other arguments to the chekc function
     check(return_code);
     executeStep();
   }
