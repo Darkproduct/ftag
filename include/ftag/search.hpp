@@ -19,7 +19,9 @@ public:
 
   // TODO: Now just search for a single tagadd search for file names and other
   // stuff in the db
-  void search(const std::vector<std::string>& input_files);
+  void search_tag(const std::vector<std::string>& input_tags);
+
+  void search(const std::vector<std::string>& input_tags);
 
 private:
   Options options;

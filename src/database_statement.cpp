@@ -90,16 +90,15 @@ void Statement::executeStep() {
     std::cout << "query finished" << std::endl;
     return;
   } else if (return_code == SQLITE_ROW) {
+    // TODO: THIS works but isnt really usefull
     // SELECT id, tag FROM tags;
-    // Go through every row and print out all the relevant tags
-    int id = sqlite3_column_int(stmt.get(), 0);
-    const char* tag =
-        reinterpret_cast<const char*>(sqlite3_column_text(stmt.get(), 1));
+    // int id = sqlite3_column_int(stmt.get(), 0);
+    // const char* tag =
+    //    reinterpret_cast<const char*>(sqlite3_column_text(stmt.get(), 1));
 
-    std::cout << "Output is: " << id << " | " << tag << std::endl;
+    // std::cout << "Output is: " << id << " | " << tag << std::endl;
 
   } else {
-    // TODO: Just pass all other arguments to the chekc function
     check(return_code);
     executeStep();
   }

@@ -57,7 +57,10 @@ int main(int argc, char* argv[]) {
   argparse::ArgumentParser search_command("search");
   search_command.add_description("Search for a tag");
 
-  search_command.add_argument("pattern").help("search");
+  argparse::ArgumentParser search_add_command("tag");
+  search_command.add_subparser(search_add_command);
+
+  import_command.add_argument("tags").help("files to import").remaining();
 
   program.add_subparser(search_command);
 
@@ -151,6 +154,11 @@ int main(int argc, char* argv[]) {
 
     ftag::Search seeker(search_options);
 
+    auto input_search_command =
+        search_command.get<std::vector<std::string>>("tags");
+    if (search_command.is_subcommand_used("tag")) {
+      seeker.search_tag(input_search_command);
+    }
     std::cerr << "TODO" << std::endl;
     std::abort();
   }
@@ -166,7 +174,7 @@ int main(int argc, char* argv[]) {
       tagger.addTag({"Test"});
     }
     if (tag_command.is_subcommand_used("edit")) {
-      tagger.searchTag({"Test"});
+      std::abort();
     }
 
   }
