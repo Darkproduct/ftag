@@ -3,7 +3,6 @@
 #include <sqlite3.h>
 
 #include <iostream>
-#include <iterator>
 #include <ostream>
 #include <string_view>
 

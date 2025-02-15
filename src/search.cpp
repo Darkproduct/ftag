@@ -17,11 +17,11 @@ void Search::search(const std::vector<std::string>& input_files) {
   }
 }
 
-void Search::search_tag(const std::vector<std::string>& input_files) {
-  std::string searchTagQuery = "SELECT id FROM tags WHERE name = (?)";
-  Statement search_Tag(database, searchTagQuery);
-  search_Tag.bind(1, input_files[0]);
-  search_Tag.executeStep();
+void Search::searchTag(const std::vector<std::string>& input_tags) {
+  std::string search_tag_query = "SELECT id FROM tags WHERE name = (?)";
+  Statement search_tag(database, search_tag_query);
+  search_tag.bind(1, input_tags[0]);
+  search_tag.executeStep();
 }
 
 }  // namespace ftag

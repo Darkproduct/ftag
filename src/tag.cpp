@@ -10,8 +10,8 @@ TagClass::TagClass(const Options& options)
     : options(options), database(options.db_path) {}
 
 void TagClass::addTag(const std::vector<std::string>& input_files) {
-  std::string addTagQuery = "INSERT INTO tags (name) VALUES (?)";
-  Statement add_Tag(database, addTagQuery);
+  std::string add_tag_query = "INSERT INTO tags (name) VALUES (?)";
+  Statement add_Tag(database, add_tag_query);
   add_Tag.bind(1, input_files[0]);
   add_Tag.executeStep();
 }

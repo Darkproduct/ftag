@@ -1,6 +1,5 @@
 #include <unistd.h>
 
-#include <chrono>
 #include <cstdlib>
 #include <exception>
 #include <iostream>
@@ -60,7 +59,7 @@ int main(int argc, char* argv[]) {
   argparse::ArgumentParser search_add_command("tag");
   search_command.add_subparser(search_add_command);
 
-  import_command.add_argument("tags").help("files to import").remaining();
+  import_command.add_argument("tags").help("tags to search").remaining();
 
   program.add_subparser(search_command);
 
@@ -157,7 +156,7 @@ int main(int argc, char* argv[]) {
     auto input_search_command =
         search_command.get<std::vector<std::string>>("tags");
     if (search_command.is_subcommand_used("tag")) {
-      seeker.search_tag(input_search_command);
+      seeker.searchTag(input_search_command);
     }
     std::cerr << "TODO" << std::endl;
     std::abort();

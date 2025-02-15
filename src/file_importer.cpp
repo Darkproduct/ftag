@@ -55,6 +55,7 @@ std::vector<std::filesystem::path> FileImporter::findFiles(
     }
   }
 
+  std::vector<int> test{3, 4, 2, 7, 7, 7};
   return files;
 }
 
