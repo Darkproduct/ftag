@@ -11,7 +11,7 @@ enum class FileState {
 };
 
 struct Tag {
-  std::string name = "";
+  std::string name;
   std::vector<std::string> aliases;
   std::vector<Tag> tags;
 };
@@ -19,5 +19,4 @@ struct Tag {
 struct FileInfo {
   std::filesystem::path path = {};
   std::vector<Tag> tags;
-  FileState state = FileState::INSERT;
 };
