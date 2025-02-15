@@ -4,11 +4,19 @@
 #include <memory>
 #include <string_view>
 #include <tuple>
-
+#include <variant>
+#include <vector>
 struct sqlite3;
 struct sqlite3_stmt;
 
 namespace ftag {
+
+using SQLiteValue = std::variant<std::nullptr_t,  // for SQL NULL values
+                                 int,             // for INTEGER
+                                 double,          // for FLOAT
+                                 std::string,     // for TEXT
+                                 std::vector<std::uint8_t>  // for BLOB
+                                 >;
 class Database;
 
 class Statement {
@@ -48,7 +56,7 @@ public:
   void bindMany(const std::tuple<Types...>& tuple,
                 std::index_sequence<Indices...>);
 
-  void executeStep();
+  std::vector<SQLiteValue> executeStep();
 
 private:
   void check(const int ret);
