@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <filesystem>
 #include <string>
 #include <vector>
@@ -18,5 +19,7 @@ struct Tag {
 
 struct FileInfo {
   std::filesystem::path path = {};
+  std::uintmax_t file_size;
+  // TODO: Fucking SQL Time stuff
   std::vector<Tag> tags;
 };

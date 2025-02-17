@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "ftag/tag_data.hpp"
+
 namespace ftag {
 struct ImportOptions {
   std::filesystem::path db_path;
@@ -24,7 +26,8 @@ std::vector<std::filesystem::path> findFiles(const std::filesystem::path& root,
 
 void filterFiles(const std::vector<std::filesystem::path>& files);
 
-void extractTags(const std::vector<std::filesystem::path>& files);
+std::vector<FileInfo> extractTags(
+    const std::vector<std::filesystem::path>& files);
 void autoTag();
 
 }  // namespace ftag

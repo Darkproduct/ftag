@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <iostream>
+#include <string>
 
 #include "ftag/tag_data.hpp"
 
@@ -70,11 +71,30 @@ void filterFiles(const std::vector<std::filesystem::path>& files) {
   //   - ignore some file types? (TBD)
   //   - maybe only add some files (images, videos, PDFs)
 
-  extractTags(files);
+  auto tagged_files = extractTags(files);
 }
 
-void extractTags(const std::vector<std::filesystem::path>& files) {
+std::vector<FileInfo> extractTags(
+    const std::vector<std::filesystem::path>& files) {
   std::vector<FileInfo> filesToImpot;
+
+  for (auto file : files) {
+    FileInfo temp;
+
+    temp.path = file;
+
+    // size
+    auto size = std::filesystem::file_size(file);
+    std::string size_string = std::to_string(size);
+    temp.tags.push_back({size_string});
+
+    // name
+    temp.tags.push_back({file.filename()});
+
+    // last modified
+    auto ftime = std::filesystem::last_write_time(file);
+    temp.tags.push_back({ftime});
+  }
   // TODO:
   // 2. Add tags
   //   - add default tags (should all be obtainable from std::filesystem)
@@ -82,7 +102,6 @@ void extractTags(const std::vector<std::filesystem::path>& files) {
   //       - Maybe we should do some cleanup here (e.g. replace "_" with " ")
   //     - file extension
   //     - file creation date
-  //     - file size
   //   - for images and other media, extract metadata
   //   - if auto-tagging is enabled, use AI to determine content?
   // 3. Add files and tags to database
