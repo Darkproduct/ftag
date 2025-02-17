@@ -4,8 +4,7 @@
 
 #include <initializer_list>
 #include <iostream>
-#include <ostream>
-#include <variant>
+#include <utility>
 
 #include "ftag/database.hpp"
 
@@ -85,7 +84,119 @@ void Statement::bindMany(const std::tuple<Types...>& tuple,
   bind(std::get<Indices>(tuple)...);
 }
 
-std::vector<ftag::SQLiteValue> Statement::executeStep() {
+template <>
+int32_t Statement::getColumn<int32_t>(int index) {
+  if (const auto t = sqlite3_column_type(stmt.get(), index);
+      t != SQLITE_INTEGER) {
+    std::cerr
+        << "Reading unexpected type from sqlite row. Expected integer got " << t
+        << std::endl;
+    std::abort();
+  }
+
+  return sqlite3_column_int(stmt.get(), index);
+}
+
+template <>
+uint32_t Statement::getColumn<uint32_t>(int index) {
+  if (const auto t = sqlite3_column_type(stmt.get(), index);
+      t != SQLITE_INTEGER) {
+    std::cerr
+        << "Reading unexpected type from sqlite row. Expected integer got " << t
+        << std::endl;
+    std::abort();
+  }
+
+  return sqlite3_column_int64(stmt.get(), index);
+}
+
+template <>
+int64_t Statement::getColumn<int64_t>(int index) {
+  if (const auto t = sqlite3_column_type(stmt.get(), index);
+      t != SQLITE_INTEGER) {
+    std::cerr
+        << "Reading unexpected type from sqlite row. Expected integer got " << t
+        << std::endl;
+    std::abort();
+  }
+
+  return sqlite3_column_int64(stmt.get(), index);
+}
+
+template <>
+double Statement::getColumn<double>(int index) {
+  if (const auto t = sqlite3_column_type(stmt.get(), index);
+      t != SQLITE_FLOAT) {
+    std::cerr << "Reading unexpected type from sqlite row. Expected float got "
+              << t << std::endl;
+    std::abort();
+  }
+
+  return sqlite3_column_double(stmt.get(), index);
+}
+
+template <>
+std::string Statement::getColumn<std::string>(int index) {
+  if (const auto t = sqlite3_column_type(stmt.get(), index); t != SQLITE_TEXT) {
+    std::cerr << "Reading unexpected type from sqlite row. Expected text got "
+              << t << std::endl;
+    std::abort();
+  }
+
+  return std::string(
+      reinterpret_cast<const char*>(sqlite3_column_text(stmt.get(), index)));
+}
+
+template <>
+std::vector<std::byte> Statement::getColumn<std::vector<std::byte>>(int index) {
+  const std::byte* blobData =
+      static_cast<const std::byte*>(sqlite3_column_blob(stmt.get(), index));
+  int blobSize = sqlite3_column_bytes(stmt.get(), index);
+  return std::vector<std::byte>(blobData, blobData + blobSize);
+}
+
+template <typename... Types, std::size_t... Indices>
+std::tuple<Types...> Statement::getRow(std::index_sequence<Indices...>) {
+  return {getColumn<Types>(Indices)...};
+}
+
+template <typename... Types>
+std::optional<std::tuple<Types...>> Statement::executeStep() {
+  int return_code = sqlite3_step(stmt.get());
+  if (return_code == SQLITE_DONE) {
+    std::cout << "query finished" << std::endl;
+    return std::nullopt;
+  } else if (return_code == SQLITE_ROW) {
+    constexpr std::size_t count = sizeof...(Types);
+    int number_of_columns = sqlite3_column_count(stmt.get());
+    if (number_of_columns != count) {
+      std::cerr << "Reading unexpected column length. Expected " << count
+                << " got " << number_of_columns << std::endl;
+      std::abort();
+    }
+
+    return getRow<Types...>(std::index_sequence_for<Types...>());
+  } else {
+    check(return_code);
+    std::cout << "wtf is this? " << return_code << std::endl;
+    std::abort();
+  }
+}
+
+template <typename... Types>
+std::vector<std::tuple<Types...>> Statement::execute() {
+  std::vector<std::tuple<Types...>> result;
+
+  auto row = executeStep<Types...>();
+  while (row) {
+    result.push_back(*row);
+    row = executeStep<Types...>();
+  }
+
+  return result;
+}
+
+std::vector<ftag::SQLiteValue> Statement::executeStepVariant() {
   int return_code = sqlite3_step(stmt.get());
   if (return_code == SQLITE_DONE) {
     std::cout << "query finished" << std::endl;
@@ -93,24 +204,26 @@ std::vector<ftag::SQLiteValue> Statement::executeStep() {
   } else if (return_code == SQLITE_ROW) {
     int number_of_columns = sqlite3_column_count(stmt.get());
     std::vector<SQLiteValue> row;
+    row.reserve(number_of_columns);
+
     for (int i = 0; i < number_of_columns; i++) {
       int type = sqlite3_column_type(stmt.get(), i);
       switch (type) {
         case SQLITE_INTEGER:
-          row.push_back(sqlite3_column_int(stmt.get(), i));
+          row.emplace_back(sqlite3_column_int(stmt.get(), i));
           break;
         case SQLITE_FLOAT:
-          row.push_back(sqlite3_column_double(stmt.get(), i));
+          row.emplace_back(sqlite3_column_double(stmt.get(), i));
           break;
         case SQLITE_TEXT:
-          row.push_back(std::string(reinterpret_cast<const char*>(
+          row.emplace_back(std::string(reinterpret_cast<const char*>(
               sqlite3_column_text(stmt.get(), i))));
           break;
         case SQLITE_BLOB: {
           const void* blob = sqlite3_column_blob(stmt.get(), i);
           int blobSize = sqlite3_column_bytes(stmt.get(), i);
           const std::uint8_t* blobData = static_cast<const std::uint8_t*>(blob);
-          row.push_back(
+          row.emplace_back(
               std::vector<std::uint8_t>(blobData, blobData + blobSize));
           break;
         }

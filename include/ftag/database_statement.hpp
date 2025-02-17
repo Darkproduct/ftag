@@ -2,10 +2,12 @@
 
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <string_view>
 #include <tuple>
 #include <variant>
 #include <vector>
+
 struct sqlite3;
 struct sqlite3_stmt;
 
@@ -56,7 +58,21 @@ public:
   void bindMany(const std::tuple<Types...>& tuple,
                 std::index_sequence<Indices...>);
 
-  std::vector<SQLiteValue> executeStep();
+private:
+  template <typename T>
+  T getColumn(int index);
+
+  template <typename... Types, std::size_t... Indices>
+  std::tuple<Types...> getRow(std::index_sequence<Indices...>);
+
+public:
+  template <typename... Types>
+  std::optional<std::tuple<Types...>> executeStep();
+
+  template <typename... Types>
+  std::vector<std::tuple<Types...>> execute();
+
+  std::vector<SQLiteValue> executeStepVariant();
 
 private:
   void check(const int ret);
