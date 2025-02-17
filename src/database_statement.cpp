@@ -185,7 +185,7 @@ std::optional<std::tuple<Types...>> Statement::executeStep() {
 
 template <typename... Types>
 std::vector<std::tuple<Types...>> Statement::execute() {
-  std::vector<std::tuple<Types...>> result;
+  std::vector<std::tuple<Types...>> result{};
 
   auto row = executeStep<Types...>();
   while (row) {
@@ -195,6 +195,9 @@ std::vector<std::tuple<Types...>> Statement::execute() {
 
   return result;
 }
+
+template std::vector<std::tuple<int64_t, std::string>>
+Statement::execute<int64_t, std::string>();
 
 std::vector<ftag::SQLiteValue> Statement::executeStepVariant() {
   int return_code = sqlite3_step(stmt.get());

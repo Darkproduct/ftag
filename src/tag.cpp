@@ -1,5 +1,6 @@
 #include "ftag/tag.hpp"
 
+#include <cstdint>
 #include <iostream>
 
 #include "ftag/database.hpp"
@@ -32,10 +33,11 @@ void editTag(const EditTagOptions& options, std::string_view name) {
 
 void findTag(const FindTagOptions& options, std::string_view tag) {
   Database db(options.db_path);
-  std::string search_tag_query = "SELECT id FROM tags WHERE name = (?)";
+  std::string search_tag_query = "SELECT * FROM tags WHERE name = (?)";
   Statement search_tag(db, search_tag_query);
   search_tag.bind(1, tag);
-  search_tag.executeStep();
+  auto ret = search_tag.execute<int64_t, std::string>();
+  std::cerr << "got x rows " << ret.size() << std::endl;
 
   // TODO:
   // 1. collect return
