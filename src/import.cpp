@@ -1,9 +1,12 @@
 #include "ftag/import.hpp"
 
+#include <ctime>
 #include <filesystem>
 #include <iostream>
 #include <string>
 
+#include "ftag/database.hpp"
+#include "ftag/database_statement.hpp"
 #include "ftag/tag_data.hpp"
 
 namespace ftag {
@@ -33,6 +36,8 @@ void import(const ImportOptions& options,
     }
 
     filterFiles(files);
+    auto tagged_files = extractTags(files);
+    addFilesToDB(options, tagged_files);
   }
 }
 
@@ -70,41 +75,62 @@ void filterFiles(const std::vector<std::filesystem::path>& files) {
   // 1. Filter files
   //   - ignore some file types? (TBD)
   //   - maybe only add some files (images, videos, PDFs)
-
-  auto tagged_files = extractTags(files);
 }
 
 std::vector<FileInfo> extractTags(
     const std::vector<std::filesystem::path>& files) {
-  std::vector<FileInfo> filesToImpot;
+  std::vector<FileInfo> filesToImport;
 
-  for (auto file : files) {
+  for (const auto& file : files) {
     FileInfo temp;
 
     temp.path = file;
 
     // size
-    auto size = std::filesystem::file_size(file);
-    std::string size_string = std::to_string(size);
-    temp.tags.push_back({size_string});
+    temp.file_size = std::filesystem::file_size(file);
+    ;
 
     // name
-    temp.tags.push_back({file.filename()});
+    temp.file_name = file.filename();
 
-    // last modified
+    // Get last modified time
     auto ftime = std::filesystem::last_write_time(file);
-    temp.tags.push_back({ftime});
+    auto sctp = std::chrono::system_clock::time_point(
+        std::chrono::duration_cast<std::chrono::system_clock::duration>(
+            ftime.time_since_epoch()));
+    std::time_t t = std::chrono::system_clock::to_time_t(sctp);
+
+    std::tm tm = *std::localtime(&t);
+
+    std::ostringstream oss;
+    oss << std::put_time(&tm, "%Y-%m-%d %H:%M:%S");
+
+    temp.last_modified = oss.str();
   }
-  // TODO:
-  // 2. Add tags
-  //   - add default tags (should all be obtainable from std::filesystem)
-  //     - file name (without extension)
-  //       - Maybe we should do some cleanup here (e.g. replace "_" with " ")
-  //     - file extension
-  //     - file creation date
-  //   - for images and other media, extract metadata
-  //   - if auto-tagging is enabled, use AI to determine content?
-  // 3. Add files and tags to database
+
+  autoTagMetaData(filesToImport);
+  return filesToImport;
+}
+
+void autoTagMetaData(std::vector<FileInfo> files) {
+  // TODO: Which  library to use?
+
+  return;
+}
+
+void addFilesToDB(const ImportOptions& options, std::vector<FileInfo> files) {
+  std::string import_files_query =
+      "INSERT INTO files (name, path, size, last_modified) VALUES (?, ?, ?, "
+      "?);";
+
+  Database db(options.db_path);
+  for (auto const& file : files) {
+    Statement import_file(db, import_files_query);
+    import_file.bindMany(file.file_name, file.path, file.file_size,
+                         file.last_modified);
+    import_file.executeStep();
+    import_file.reset();
+  }
 }
 
 }  // namespace ftag

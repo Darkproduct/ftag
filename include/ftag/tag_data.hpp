@@ -18,8 +18,9 @@ struct Tag {
 };
 
 struct FileInfo {
-  std::filesystem::path path = {};
+  std::filesystem::path path;
+  std::string file_name;
   std::uintmax_t file_size;
-  // TODO: Fucking SQL Time stuff
+  std::string last_modified;
   std::vector<Tag> tags;
 };

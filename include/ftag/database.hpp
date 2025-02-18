@@ -59,7 +59,8 @@ private:
   std::unique_ptr<sqlite3, Deleter> db;
 
   constexpr static char query_create_files_table[] =
-      "CREATE TABLE files (id INTEGER PRIMARY KEY, path TEXT)";
+      "CREATE TABLE files (id INTEGER PRIMARY KEY, name TEXT, path TEXT, size "
+      "TEXT, last_modified TEXT)";
   constexpr static char query_create_tags_table[] =
       "CREATE TABLE tags (id INTEGER PRIMARY KEY, name TEXT)";
   constexpr static char query_create_tag_map_table[] =

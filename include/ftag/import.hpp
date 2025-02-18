@@ -28,6 +28,9 @@ void filterFiles(const std::vector<std::filesystem::path>& files);
 
 std::vector<FileInfo> extractTags(
     const std::vector<std::filesystem::path>& files);
-void autoTag();
+
+void autoTagMetaData(std::vector<FileInfo> files);
+
+void addFilesToDB(const ImportOptions& options, std::vector<FileInfo> files);
 
 }  // namespace ftag
