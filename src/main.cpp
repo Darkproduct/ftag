@@ -9,6 +9,7 @@
 #include "ftag/file.hpp"
 #include "ftag/import.hpp"
 #include "ftag/search.hpp"
+#include "ftag/sync.hpp"
 #include "ftag/tag.hpp"
 
 std::filesystem::path getDatabasePath() {
@@ -70,12 +71,15 @@ int main(int argc, char* argv[]) {
       " - ftag import < list_of_files.txt");
 
   program.add_subparser(import_command);
+  // ftag sync
+  ftag::SyncOptions sync_options;
+  argparse::ArgumentParser sync_command("sync");
+  sync_command.add_description("Sync directories which are tracked");
 
   // ftag search
   ftag::SearchOptions search_options;
   argparse::ArgumentParser search_command("search");
   search_command.add_description("Search for a tag");
-
   search_command.add_argument("--database")
       .help("Path to the database file to use")
       .default_value(default_db_path)
@@ -83,20 +87,22 @@ int main(int argc, char* argv[]) {
   search_command.add_argument("--verbose")
       .help("Increase output verbosity")
       .store_into(search_options.verbose);
-
   search_command.add_argument("pattern").help("search");
-
   program.add_subparser(search_command);
 
   // ftag tag
   argparse::ArgumentParser tag_command("tag");
   tag_command.add_description("Add, remove, edit or find tags");
 
+  // ftag track
+  argparse::ArgumentParser track_command("track");
+  track_command.add_description("Track directories");
+  track_command.add_description("directories");
+
   // ftag tag add
   ftag::AddTagOptions add_tag_options;
   argparse::ArgumentParser tag_add_command("add");
   tag_add_command.add_description("Add new tag");
-
   tag_add_command.add_argument("--database")
       .help("Path to the database file to use")
       .default_value(default_db_path)
@@ -104,19 +110,16 @@ int main(int argc, char* argv[]) {
   tag_add_command.add_argument("--verbose")
       .help("Increase output verbosity")
       .store_into(add_tag_options.verbose);
-
   tag_add_command.add_argument("tag").help("Tag to add");
   tag_add_command.add_argument("aliases")
       .help("Aliases for this tag")
       .remaining();
-
   tag_command.add_subparser(tag_add_command);
 
   // ftag tag remove
   ftag::RemoveTagOptions remove_tag_options;
   argparse::ArgumentParser tag_remove_command("remove");
   tag_remove_command.add_description("Remove tag");
-
   tag_remove_command.add_argument("--database")
       .help("Path to the database file to use")
       .default_value(default_db_path)
@@ -124,16 +127,13 @@ int main(int argc, char* argv[]) {
   tag_remove_command.add_argument("--verbose")
       .help("Increase output verbosity")
       .store_into(remove_tag_options.verbose);
-
   tag_remove_command.add_argument("tag").help("Tag to remove");
-
   tag_command.add_subparser(tag_remove_command);
 
   // ftag tag edit
   ftag::EditTagOptions edit_tag_options;
   argparse::ArgumentParser tag_edit_command("edit");
   tag_edit_command.add_description("Edit tag");
-
   tag_edit_command.add_argument("--database")
       .help("Path to the database file to use")
       .default_value(default_db_path)
@@ -141,16 +141,13 @@ int main(int argc, char* argv[]) {
   tag_edit_command.add_argument("--verbose")
       .help("Increase output verbosity")
       .store_into(edit_tag_options.verbose);
-
   tag_edit_command.add_argument("tag").help("Tag to edit");
-
   tag_command.add_subparser(tag_edit_command);
 
   // ftag tag find
   ftag::FindTagOptions find_tag_options;
   argparse::ArgumentParser tag_find_command("find");
   tag_find_command.add_description("Find tag");
-
   tag_find_command.add_argument("--database")
       .help("Path to the database file to use")
       .default_value(default_db_path)
@@ -158,11 +155,8 @@ int main(int argc, char* argv[]) {
   tag_find_command.add_argument("--verbose")
       .help("Increase output verbosity")
       .store_into(find_tag_options.verbose);
-
   tag_find_command.add_argument("tag").help("Tag or alias to find");
-
   tag_command.add_subparser(tag_find_command);
-
   program.add_subparser(tag_command);
 
   // ftag file
@@ -177,7 +171,6 @@ int main(int argc, char* argv[]) {
   ftag::AddTagsFileOptions add_tags_file_options;
   argparse::ArgumentParser file_tag_add_command("add");
   file_tag_add_command.add_description("Add tag to file");
-
   file_tag_add_command.add_argument("--database")
       .help("Path to the database file to use")
       .default_value(default_db_path)
@@ -185,19 +178,16 @@ int main(int argc, char* argv[]) {
   file_tag_add_command.add_argument("--verbose")
       .help("Increase output verbosity")
       .store_into(add_tags_file_options.verbose);
-
   file_tag_add_command.add_argument("file").help("File to add tags to");
   file_tag_add_command.add_argument("tags")
       .help("Tags to add to the file")
       .nargs(argparse::nargs_pattern::at_least_one);
-
   file_tag_command.add_subparser(file_tag_add_command);
 
   // ftag file tag remove
   ftag::RemoveTagsFileOptions remove_tags_file_options;
   argparse::ArgumentParser file_tag_remove_command("remove");
   file_tag_remove_command.add_description("Remove tag from file");
-
   file_tag_remove_command.add_argument("--database")
       .help("Path to the database file to use")
       .default_value(default_db_path)
@@ -205,15 +195,12 @@ int main(int argc, char* argv[]) {
   file_tag_remove_command.add_argument("--verbose")
       .help("Increase output verbosity")
       .store_into(remove_tags_file_options.verbose);
-
   file_tag_remove_command.add_argument("file").help("File to remove tags from");
   file_tag_remove_command.add_argument("tags")
       .help("Tags to remove from the file")
       .nargs(argparse::nargs_pattern::at_least_one);
   file_tag_command.add_subparser(file_tag_remove_command);
-
   file_command.add_subparser(file_tag_command);
-
   program.add_subparser(file_command);
 
   // Parse arguments
