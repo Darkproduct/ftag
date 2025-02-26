@@ -69,10 +69,9 @@ private:
       "REFERENCES tags(id))";
   constexpr static char query_create_tracked_directories[] =
       "CREATE TABLE directories (id INTEGER, path TEXT)";
-  constexpr static char
-      query_create_dir_map_table[] =  // TODO: Table which maps files to
-                                      // directories
-      ;
+  constexpr static char query_create_dir_map_table[] = " ";
+  // TODO: Table which maps files to
+  // directories
   constexpr static char query_insert_files[] =
       "INSERT INTO files (path) VALUES (?)";
   constexpr static char query_insert_tags[] =

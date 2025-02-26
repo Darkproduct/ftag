@@ -80,7 +80,7 @@ void filterFiles(const std::vector<std::filesystem::path>& files) {
 
 std::vector<FileInfo> extractTags(
     const std::vector<std::filesystem::path>& files) {
-  std::vector<FileInfo>& filesToImport;
+  std::vector<FileInfo> filesToImport;
 
   for (const auto& file : files) {
     FileInfo temp;
@@ -106,6 +106,7 @@ std::vector<FileInfo> extractTags(
     oss << std::put_time(&tm, "%Y-%m-%d %H:%M:%S");
 
     temp.last_modified = oss.str();
+    filesToImport.push_back(temp);
   }
 
   autoTagMetaData(filesToImport);
@@ -130,7 +131,7 @@ void addFilesToDB(const ImportOptions& options, std::vector<FileInfo>& files) {
 
   for (auto const& file : files) {
     Statement check_existance(db, check_query);
-    check_existance.bind(file.path);
+    check_existance.bindMany(file.path);
 
     if (!check_existance.executeStep()) {
       Statement import_file(db, import_files_query);
@@ -149,40 +150,4 @@ void addFilesToDB(const ImportOptions& options, std::vector<FileInfo>& files) {
     check_existance.reset();
   }
 }
-
-// TODO: Pass Databse to a update enrty function or two seeprate
-
-void UpdateDB(const ImportOptions& options) {
-  Database db(options.db_path);
-
-  std::string update_entry_query =
-      "UPDATE files SET name = ?, size = ?, last_modified = ? WHERE path = ?";
-
-  std::string delete_entry_query = "DELETE FROM files WHERE path = ? ";
-
-  std::string get_files_column = "SELECT * FROM files";
-  Statement get_files(db, get_files_column);
-
-  get_files.executeStep();
-  // TODO: retruns amount of colums emplace possible add them to the vector
-  std::vector<std::string> paths_from_db;
-
-  for (auto const& path : paths_from_db) {
-    if (std::filesystem::exists(path)) {
-      Statement update_file(db, update_entry_query);
-      std::vector<FileInfo> file_info_from_path = extractTags({path});
-      update_file.bindMany(
-          file_info_from_path[0].file_name, file_info_from_path[0].file_size,
-          file_info_from_path[0].last_modified, file_info_from_path[0].path);
-      update_file.executeStep();
-      update_file.reset();
-    } else {
-      Statement delete_entry(db, delete_entry_query);
-      delete_entry.bind(path);
-      delete_entry.executeStep();
-      delete_entry.reset();
-    }
-  }
-}
-
 }  // namespace ftag
