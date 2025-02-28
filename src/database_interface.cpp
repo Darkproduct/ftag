@@ -1,10 +1,12 @@
 #include <ftag/database.hpp>
 #include <ftag/database_interface.hpp>
 #include <ftag/database_statement.hpp>
+#include <ftag/tag_data.hpp>
 
 namespace ftag {
 
-void addFilesToDB(const ImportOptions& options, std::vector<FileInfo>& files) {
+// Add raw untrakced by directories to the DB and update if found already
+void addFilesToDB(std::vector<FileInfo>& files, std::string db_path) {
   std::string check_query = "SELECT EXISTS(SELECT 1 FROM files WHERE path = ?)";
   std::string import_files_query =
       "INSERT INTO files (name, path, size, last_modified) VALUES (?, ?, ?, "
@@ -12,7 +14,8 @@ void addFilesToDB(const ImportOptions& options, std::vector<FileInfo>& files) {
   std::string update_entry_query =
       "UPDATE files SET name = ?, size = ?, last_modified = ? WHERE path = ?";
 
-  Database db(options.db_path);
+  Database db(db_path);
+  // TODO: Somehow return all files
 
   for (auto const& file : files) {
     Statement check_existance(db, check_query);
@@ -35,34 +38,25 @@ void addFilesToDB(const ImportOptions& options, std::vector<FileInfo>& files) {
     check_existance.reset();
   }
 }
-
-std::vector<std::filesystem::path> findFiles(const std::filesystem::path& root,
-                                             bool ignore_hidden,
-                                             bool respect_gitignore) {
+// Find FIles for a given directory
+std::vector<std::filesystem::path> findFiles(
+    const std::filesystem::path& root) {
   std::vector<std::filesystem::path> files;
 
   auto it = std::filesystem::recursive_directory_iterator(root);
   for (const auto& dir_entry : it) {
-    bool ignore =
-        ignore_hidden || dir_entry.path().filename().string().starts_with(".");
+    bool ignore = dir_entry.path().filename().string().starts_with(".");
 
     if (dir_entry.is_directory() && ignore) {
       it.disable_recursion_pending();
-    } else if (dir_entry.is_directory() && respect_gitignore) {
-      // TODO:
-      // 1. Find .gitignore
-      //    We need to check on every directory we recurse into if it
-      //    contains a gitignore file. This would be the only way to ensure no
-      //    files are already commited to the files vector
-      // 2. read gitignore and apply it
+    } else if (dir_entry.is_directory()) {
     } else if (dir_entry.is_regular_file() && !ignore) {
       files.emplace_back(dir_entry.path());
     }
   }
-
   return files;
 }
-
+// For a vector extract tags return the fileInfo
 std::vector<FileInfo> extractTags(
     const std::vector<std::filesystem::path>& files) {
   std::vector<FileInfo> filesToImport;
