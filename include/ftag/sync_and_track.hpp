@@ -3,12 +3,6 @@
 #include <filesystem>
 
 namespace ftag {
-struct SyncTagOptions {
-  std::filesystem::path db_path;
-  bool tracked;
-};
-
-void syncDatabase(const SyncTagOptions& options);
 
 struct AddDirOptions {
   std::filesystem::path db_path;

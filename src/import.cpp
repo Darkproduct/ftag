@@ -15,8 +15,6 @@ namespace ftag {
 void import(const ImportOptions& options,
             const std::vector<std::string>& paths) {
   if (paths.size() == 0) {
-    // TODO: Maybe add a question [Y/n] or something if you really want to
-    // add the cwd. Can also be set with -y or something
     filterFiles(
         findFiles(".", options.ignore_hidden, options.respect_gitignore));
   } else {
