@@ -6,7 +6,6 @@ namespace ftag {
 
 struct SyncOptions {
   std::filesystem::path db_path;
-  bool tracked;
 };
 
 void syncDatabase(const SyncOptions& options);

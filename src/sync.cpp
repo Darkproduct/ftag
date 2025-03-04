@@ -12,6 +12,11 @@ namespace ftag {
 
 void syncDatabase(const SyncOptions& options,
                   std::vector<std::filesystem::path> directories) {
+  // TODO:
+  // 1. Get all dirs from tracked dir table
+  // 2. Run import command with all dirs from tracked table
+  //    here (dirs provieded from db) → import → database_interface
+
   Database db(options.db_path);
 
   std::string update_entry_query =
