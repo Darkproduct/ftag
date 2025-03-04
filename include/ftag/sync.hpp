@@ -4,13 +4,11 @@
 
 namespace ftag {
 
-namespace ftag {
-struct SyncTagOptions {
+struct SyncOptions {
   std::filesystem::path db_path;
   bool tracked;
 };
 
-void syncDatabase(const SyncTagOptions& options);
+void syncDatabase(const SyncOptions& options);
 
-}  // namespace ftag
 }  // namespace ftag

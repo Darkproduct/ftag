@@ -1,5 +1,6 @@
-#include "ftag/sync_and_track.hpp"
+#include "ftag/sync.hpp"
 
+#include <cstdint>
 #include <filesystem>
 #include <vector>
 
@@ -9,7 +10,7 @@
 
 namespace ftag {
 
-void syncDatabase(const SyncTagOptions& options,
+void syncDatabase(const SyncOptions& options,
                   std::vector<std::filesystem::path> directories) {
   Database db(options.db_path);
 
@@ -30,13 +31,15 @@ void syncDatabase(const SyncTagOptions& options,
       Statement update_file(db, update_entry_query);
       std::vector<FileInfo> file_info_from_path = extractTags({path});
       update_file.bindMany(
-          file_info_from_path[0].file_name, file_info_from_path[0].file_size,
-          file_info_from_path[0].last_modified, file_info_from_path[0].path);
+          file_info_from_path[0].file_name,
+          static_cast<uint64_t>(file_info_from_path[0].file_size),
+          file_info_from_path[0].last_modified,
+          file_info_from_path[0].path.string());
       update_file.executeStep();
       update_file.reset();
     } else {
       Statement delete_entry(db, delete_entry_query);
-      delete_entry.bindMany(path);
+      delete_entry.bind(0, path.string());
       delete_entry.executeStep();
       delete_entry.reset();
     }

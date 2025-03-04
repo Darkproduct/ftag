@@ -6,9 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "ftag/database.hpp"
-#include "ftag/database_statement.hpp"
-#include "ftag/tag_data.hpp"
+#include "ftag/database_interface.hpp"
 
 namespace ftag {
 
@@ -36,8 +34,35 @@ void import(const ImportOptions& options,
 
     filterFiles(files);
     auto tagged_files = extractTags(files);
-    addFilesToDB(options, tagged_files);
+    addFilesToDB(tagged_files, options.db_path);
   }
+}
+
+std::vector<std::filesystem::path> findFiles(const std::filesystem::path& root,
+                                             bool ignore_hidden,
+                                             bool respect_gitignore) {
+  std::vector<std::filesystem::path> files;
+
+  auto it = std::filesystem::recursive_directory_iterator(root);
+  for (const auto& dir_entry : it) {
+    bool ignore =
+        ignore_hidden || dir_entry.path().filename().string().starts_with(".");
+
+    if (dir_entry.is_directory() && ignore) {
+      it.disable_recursion_pending();
+    } else if (dir_entry.is_directory() && respect_gitignore) {
+      // TODO:
+      // 1. Find .gitignore
+      //    We need to check on every directory we recurse into if it
+      //    contains a gitignore file. This would be the only way to ensure no
+      //    files are already commited to the files vector
+      // 2. read gitignore and apply it
+    } else if (dir_entry.is_regular_file() && !ignore) {
+      files.emplace_back(dir_entry.path());
+    }
+  }
+
+  return files;
 }
 
 void filterFiles(const std::vector<std::filesystem::path>& files) {

@@ -31,6 +31,4 @@ std::vector<FileInfo> extractTags(
 
 void autoTagMetaData(std::vector<FileInfo> files);
 
-void addFilesToDB(const ImportOptions& options, std::vector<FileInfo> files);
-
 }  // namespace ftag

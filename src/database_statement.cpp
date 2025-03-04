@@ -2,6 +2,7 @@
 
 #include <sqlite3.h>
 
+#include <cstdint>
 #include <initializer_list>
 #include <iostream>
 #include <utility>
@@ -54,6 +55,12 @@ void Statement::bind(const int index, const int64_t value) {
   check(ret);
 }
 
+void Statement::bind(const int index, const uint64_t value) {
+  const int ret =
+      sqlite3_bind_int64(stmt.get(), index, static_cast<int64_t>(value));
+  check(ret);
+}
+
 void Statement::bind(const int index, const double value) {
   const int ret = sqlite3_bind_double(stmt.get(), index, value);
   check(ret);
@@ -64,24 +71,6 @@ void Statement::bind(const int index, const std::string_view value) {
       sqlite3_bind_text(stmt.get(), index, value.data(),
                         static_cast<int>(value.size()), SQLITE_TRANSIENT);
   check(ret);
-}
-
-template <class... Args>
-void Statement::bindMany(const Args&... args) {
-  int pos = 0;
-  (void)std::initializer_list<int>{
-      ((void)bind(++pos, std::forward<decltype(args)>(args)), 0)...};
-}
-
-template <typename... Types>
-void Statement::bindMany(const std::tuple<Types...>& tuple) {
-  bind(tuple, std::index_sequence_for<Types...>());
-}
-
-template <typename... Types, std::size_t... Indices>
-void Statement::bindMany(const std::tuple<Types...>& tuple,
-                         std::index_sequence<Indices...>) {
-  bind(std::get<Indices>(tuple)...);
 }
 
 template <>
@@ -121,6 +110,19 @@ int64_t Statement::getColumn<int64_t>(int index) {
   }
 
   return sqlite3_column_int64(stmt.get(), index);
+}
+
+template <>
+uint64_t Statement::getColumn<uint64_t>(int index) {
+  if (const auto t = sqlite3_column_type(stmt.get(), index);
+      t != SQLITE_INTEGER) {
+    std::cerr
+        << "Reading unexpected type from sqlite row. Expected integer got " << t
+        << std::endl;
+    std::abort();
+  }
+
+  return static_cast<uint64_t>(sqlite3_column_int64(stmt.get(), index));
 }
 
 template <>

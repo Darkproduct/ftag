@@ -45,18 +45,27 @@ public:
   void bind(const int index, const int32_t value);
   void bind(const int index, const uint32_t value);
   void bind(const int index, const int64_t value);
+  void bind(const int index, const uint64_t value);
   void bind(const int index, const double value);
   void bind(const int index, const std::string_view value);
 
   template <class... Args>
-  void bindMany(const Args&... args);
+  void bindMany(const Args&... args) {
+    int pos = 0;
+    (void)std::initializer_list<int>{
+        ((void)bind(++pos, std::forward<decltype(args)>(args)), 0)...};
+  }
 
   template <typename... Types>
-  void bindMany(const std::tuple<Types...>& tuple);
+  void bindMany(const std::tuple<Types...>& tuple) {
+    bind(tuple, std::index_sequence_for<Types...>());
+  }
 
   template <typename... Types, std::size_t... Indices>
   void bindMany(const std::tuple<Types...>& tuple,
-                std::index_sequence<Indices...>);
+                std::index_sequence<Indices...>) {
+    bind(std::get<Indices>(tuple)...);
+  }
 
 private:
   template <typename T>
