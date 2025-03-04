@@ -2,10 +2,12 @@
 
 #include <cstdlib>
 #include <exception>
+#include <format>
 #include <iostream>
 #include <ostream>
 
 #include "argparse/argparse.hpp"
+#include "ftag/abort.hpp"
 #include "ftag/file.hpp"
 #include "ftag/import.hpp"
 #include "ftag/search.hpp"
@@ -20,8 +22,7 @@ std::filesystem::path getDatabasePath() {
 
   if (!std::filesystem::exists(data_dir)) {
     if (!std::filesystem::create_directories(data_dir)) {
-      std::cerr << "Couldn't create dir" << data_dir << std::endl;
-      std::abort();
+      ftag::abort(std::format("Couldn't create dir '{}'", data_dir.string()));
     }
   }
 

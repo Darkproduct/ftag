@@ -43,46 +43,4 @@ void addFilesToDB(std::vector<FileInfo>& files, std::filesystem::path db_path) {
   }
 }
 
-// For a vector extract tags return the fileInfo
-std::vector<FileInfo> extractTags(
-    const std::vector<std::filesystem::path>& files) {
-  std::vector<FileInfo> filesToImport;
-
-  for (const auto& file : files) {
-    FileInfo temp;
-
-    temp.path = file;
-
-    // size
-    temp.file_size = std::filesystem::file_size(file);
-
-    // name
-    temp.file_name = file.filename();
-
-    // Get last modified time
-    auto ftime = std::filesystem::last_write_time(file);
-    auto sctp = std::chrono::system_clock::time_point(
-        std::chrono::duration_cast<std::chrono::system_clock::duration>(
-            ftime.time_since_epoch()));
-    std::time_t t = std::chrono::system_clock::to_time_t(sctp);
-
-    std::tm tm = *std::localtime(&t);
-
-    std::ostringstream oss;
-    oss << std::put_time(&tm, "%Y-%m-%d %H:%M:%S");
-
-    temp.last_modified = oss.str();
-    filesToImport.push_back(temp);
-  }
-
-  autoTagMetaData(filesToImport);
-  return filesToImport;
-}
-
-void autoTagMetaData(std::vector<FileInfo>& files) {
-  // TODO: Which  library to use?
-
-  return;
-}
-
 }  // namespace ftag

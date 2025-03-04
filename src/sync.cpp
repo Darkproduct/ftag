@@ -31,23 +31,23 @@ void syncDatabase(const SyncOptions& options,
   // TODO:  get only files which are untracked by
 
   // update
-  for (auto const& path : paths_from_db) {
-    if (std::filesystem::exists(path)) {
-      Statement update_file(db, update_entry_query);
-      std::vector<FileInfo> file_info_from_path = extractTags({path});
-      update_file.bindMany(
-          file_info_from_path[0].file_name,
-          static_cast<uint64_t>(file_info_from_path[0].file_size),
-          file_info_from_path[0].last_modified,
-          file_info_from_path[0].path.string());
-      update_file.executeStep();
-      update_file.reset();
-    } else {
-      Statement delete_entry(db, delete_entry_query);
-      delete_entry.bind(0, path.string());
-      delete_entry.executeStep();
-      delete_entry.reset();
-    }
-  }
+  /*for (auto const& path : paths_from_db) {*/
+  /*  if (std::filesystem::exists(path)) {*/
+  /*    Statement update_file(db, update_entry_query);*/
+  /*    std::vector<FileInfo> file_info_from_path = extractTags({path});*/
+  /*    update_file.bindMany(*/
+  /*        file_info_from_path[0].file_name,*/
+  /*        static_cast<uint64_t>(file_info_from_path[0].file_size),*/
+  /*        file_info_from_path[0].last_modified,*/
+  /*        file_info_from_path[0].path.string());*/
+  /*    update_file.executeStep();*/
+  /*    update_file.reset();*/
+  /*  } else {*/
+  /*    Statement delete_entry(db, delete_entry_query);*/
+  /*    delete_entry.bind(0, path.string());*/
+  /*    delete_entry.executeStep();*/
+  /*    delete_entry.reset();*/
+  /*  }*/
+  /*}*/
 }
 }  // namespace ftag

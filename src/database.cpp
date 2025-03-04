@@ -2,9 +2,12 @@
 
 #include <sqlite3.h>
 
+#include <format>
 #include <iostream>
 #include <ostream>
 #include <string_view>
+
+#include "ftag/abort.hpp"
 
 namespace ftag {
 
@@ -14,10 +17,8 @@ Database::Database(const std::filesystem::path& db_path) {
   if (sqlite3_open_v2(reinterpret_cast<const char*>(db_path.u8string().c_str()),
                       &db_ptr, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
                       nullptr)) {
-    std::cerr << "Can't create database: " << sqlite3_errmsg(db_ptr)
-              << std::endl;
     sqlite3_close(db_ptr);
-    std::abort();
+    abort(std::format("Can't create database: {}", sqlite3_errmsg(db_ptr)));
   } else {
     db.reset(db_ptr);
   }
@@ -29,9 +30,7 @@ Database::Database(const std::filesystem::path& db_path) {
 
 void Database::Deleter::operator()(sqlite3* db) const {
   if (auto err = sqlite3_close_v2(db); err != SQLITE_OK) {
-    std::cerr << "error: sqlite db couldn't be closed with error " << err
-              << std::endl;
-    std::abort();
+    abort("error: sqlite db couldn't be closed with error ");
   }
 }
 
@@ -46,7 +45,7 @@ void Database::exec(std::string_view query) const {
       std::cerr << "sqlite3_exec error without error message. Return num "
                 << ret << std::endl;
     }
-    std::abort();
+    abort("exec failed");
   }
 }
 

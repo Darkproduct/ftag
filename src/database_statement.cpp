@@ -3,10 +3,12 @@
 #include <sqlite3.h>
 
 #include <cstdint>
-#include <initializer_list>
+#include <cstdlib>
+#include <format>
 #include <iostream>
 #include <utility>
 
+#include "ftag/abort.hpp"
 #include "ftag/database.hpp"
 
 namespace ftag {
@@ -21,9 +23,7 @@ Statement::Statement(const Database& db, const std::string_view query) {
 
 void Statement::Deleter::operator()(sqlite3_stmt* stmt) const {
   if (auto err = sqlite3_finalize(stmt); err != SQLITE_OK) {
-    std::cerr << "error: sqlite finalize finished with error " << err
-              << std::endl;
-    std::abort();
+    abort(std::format("error: sqlite finalize finished with error {}", err));
   }
 }
 
@@ -77,10 +77,8 @@ template <>
 int32_t Statement::getColumn<int32_t>(int index) {
   if (const auto t = sqlite3_column_type(stmt.get(), index);
       t != SQLITE_INTEGER) {
-    std::cerr
-        << "Reading unexpected type from sqlite row. Expected integer got " << t
-        << std::endl;
-    std::abort();
+    abort(std::format(
+        "Reading unexpected type from sqlite row. Expected integer got {}", t));
   }
 
   return sqlite3_column_int(stmt.get(), index);
@@ -90,10 +88,8 @@ template <>
 uint32_t Statement::getColumn<uint32_t>(int index) {
   if (const auto t = sqlite3_column_type(stmt.get(), index);
       t != SQLITE_INTEGER) {
-    std::cerr
-        << "Reading unexpected type from sqlite row. Expected integer got " << t
-        << std::endl;
-    std::abort();
+    abort(std::format(
+        "Reading unexpected type from sqlite row. Expected integer got {}", t));
   }
 
   return sqlite3_column_int64(stmt.get(), index);
@@ -103,10 +99,8 @@ template <>
 int64_t Statement::getColumn<int64_t>(int index) {
   if (const auto t = sqlite3_column_type(stmt.get(), index);
       t != SQLITE_INTEGER) {
-    std::cerr
-        << "Reading unexpected type from sqlite row. Expected integer got " << t
-        << std::endl;
-    std::abort();
+    abort(std::format(
+        "Reading unexpected type from sqlite row. Expected integer got {}", t));
   }
 
   return sqlite3_column_int64(stmt.get(), index);
@@ -116,10 +110,8 @@ template <>
 uint64_t Statement::getColumn<uint64_t>(int index) {
   if (const auto t = sqlite3_column_type(stmt.get(), index);
       t != SQLITE_INTEGER) {
-    std::cerr
-        << "Reading unexpected type from sqlite row. Expected integer got " << t
-        << std::endl;
-    std::abort();
+    abort(std::format(
+        "Reading unexpected type from sqlite row. Expected integer got {}", t));
   }
 
   return static_cast<uint64_t>(sqlite3_column_int64(stmt.get(), index));
@@ -129,9 +121,8 @@ template <>
 double Statement::getColumn<double>(int index) {
   if (const auto t = sqlite3_column_type(stmt.get(), index);
       t != SQLITE_FLOAT) {
-    std::cerr << "Reading unexpected type from sqlite row. Expected float got "
-              << t << std::endl;
-    std::abort();
+    abort(std::format(
+        "Reading unexpected type from sqlite row. Expected float got {}", t));
   }
 
   return sqlite3_column_double(stmt.get(), index);
@@ -140,9 +131,8 @@ double Statement::getColumn<double>(int index) {
 template <>
 std::string Statement::getColumn<std::string>(int index) {
   if (const auto t = sqlite3_column_type(stmt.get(), index); t != SQLITE_TEXT) {
-    std::cerr << "Reading unexpected type from sqlite row. Expected text got "
-              << t << std::endl;
-    std::abort();
+    abort(std::format(
+        "Reading unexpected type from sqlite row. Expected text got {}", t));
   }
 
   return std::string(
@@ -172,16 +162,14 @@ std::optional<std::tuple<Types...>> Statement::executeStep() {
     constexpr std::size_t count = sizeof...(Types);
     int number_of_columns = sqlite3_column_count(stmt.get());
     if (number_of_columns != count) {
-      std::cerr << "Reading unexpected column length. Expected " << count
-                << " got " << number_of_columns << std::endl;
-      std::abort();
+      abort(std::format("Reading unexpected column length. Expected {} got {}",
+                        count, number_of_columns));
     }
 
     return getRow<Types...>(std::index_sequence_for<Types...>());
   } else {
     check(return_code);
-    std::cout << "wtf is this? " << return_code << std::endl;
-    std::abort();
+    abort(std::format("wtf is this? {}", return_code));
   }
 }
 
@@ -252,9 +240,7 @@ std::vector<ftag::SQLiteValue> Statement::executeStepVariant() {
 
 void Statement::check(const int ret) {
   if (ret != SQLITE_OK) {
-    std::cerr << "Error in sqlite statement with error code: " << ret
-              << std::endl;
-    std::abort();
+    abort(std::format("Error in sqlite statement with error code: {}", ret));
   }
 }
 

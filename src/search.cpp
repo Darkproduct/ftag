@@ -1,6 +1,6 @@
 #include "ftag/search.hpp"
 
-#include <iostream>
+#include "ftag/abort.hpp"
 
 namespace ftag {
 
@@ -12,8 +12,7 @@ void search(const SearchOptions& options, std::string_view pattern) {
   //    → std::vector<FileInfo>
   // 4. Display formatted output
 
-  std::cerr << "TODO" << std::endl;
-  std::abort();
+  abort("TODO");
 }
 
 }  // namespace ftag

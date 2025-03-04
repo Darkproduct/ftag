@@ -26,11 +26,11 @@ std::vector<std::filesystem::path> findFiles(const std::filesystem::path& root,
                                              bool ignore_hidden,
                                              bool respect_gitignore);
 
-void filterFiles(const std::vector<std::filesystem::path>& files);
+void filterFiles(const ImportOptions& options,
+                 const std::vector<std::filesystem::path>& files);
 
 std::vector<FileInfo> extractTags(
     const std::vector<std::filesystem::path>& files);
-
-void autoTagMetaData(std::vector<FileInfo> files);
+void autoTagMetaData(std::vector<FileInfo>& files);
 
 }  // namespace ftag

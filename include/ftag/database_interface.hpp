@@ -11,8 +11,4 @@ namespace ftag {
 
 void addFilesToDB(std::vector<FileInfo>& files, std::filesystem::path db_path);
 
-std::vector<FileInfo> extractTags(
-    const std::vector<std::filesystem::path>& files);
-void autoTagMetaData(std::vector<FileInfo>& files);
-
 }  // namespace ftag

@@ -1,8 +1,10 @@
 #include "ftag/tag.hpp"
 
 #include <cstdint>
+#include <cstdlib>
 #include <iostream>
 
+#include "ftag/abort.hpp"
 #include "ftag/database.hpp"
 #include "ftag/database_statement.hpp"
 
@@ -22,13 +24,11 @@ void addTag(const AddTagOptions& options, std::string_view tag,
 }
 
 void removeTag(const RemoveTagOptions& options, std::string_view name) {
-  std::cerr << "TODO" << std::endl;
-  std::abort();
+  abort("TODO");
 }
 
 void editTag(const EditTagOptions& options, std::string_view name) {
-  std::cerr << "TODO" << std::endl;
-  std::abort();
+  abort("TODO");
 }
 
 void findTag(const FindTagOptions& options, std::string_view tag) {
@@ -43,8 +43,7 @@ void findTag(const FindTagOptions& options, std::string_view tag) {
   // 1. collect return
   // 2. display tag
 
-  std::cerr << "TODO" << std::endl;
-  std::abort();
+  abort("TODO");
 }
 
 }  // namespace ftag
