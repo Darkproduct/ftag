@@ -54,6 +54,8 @@ void Database::createDatabase() const {
   exec(query_create_files_table);
   exec(query_create_tags_table);
   exec(query_create_tag_map_table);
+  exec(query_create_directories);
+  exec(query_create_dir_map_table);
 }
 
 }  // namespace ftag

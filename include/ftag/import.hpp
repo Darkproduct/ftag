@@ -15,6 +15,8 @@ struct ImportOptions {
 
   bool ignore_hidden = true;
   bool respect_gitignore = true;
+
+  bool sync_import = false;
 };
 
 void import(const ImportOptions& options,
