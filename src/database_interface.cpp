@@ -11,21 +11,19 @@ namespace ftag {
 
 void addFilesToDB(const std::vector<FileInfo>& files,
                   const std::filesystem::path& db_path) {
-  constexpr static char import_files_query[] =
+  constexpr static char import_or_update_query[] =
       "INSERT INTO files (name, path, size, last_modified)"
       "VALUES (:name, :path, :size, :last_mod)"
-      "ON DUPLICATE KEY "
-      "UPDATE "
-      "name = VALUES(:name),"
-      "path = VALUES(:path),"
-      "size = VALUES(:size),"
-      "last_modified = VALUES(:last_mod);";
+      "ON CONFLICT(path) DO UPDATE SET "
+      "name=:name,"
+      "size=:size,"
+      "last_modified=:last_mod";
 
   // TODO: Fix insert/update query
-  std::cerr << import_files_query << std::endl;
+  std::cerr << import_or_update_query << std::endl;
 
   Database db(db_path);
-  Statement import_file(db, import_files_query);
+  Statement import_file(db, import_or_update_query);
 
   for (const auto& file : files) {
     std::string path_storeage = file.path.string();

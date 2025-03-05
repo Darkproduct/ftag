@@ -80,7 +80,7 @@ private:
   constexpr static char query_create_directories[] =
       "CREATE TABLE directories ("
       "id INTEGER PRIMARY KEY,"
-      "path TEXT)";
+      "path TEXT UNIQUE)";
   constexpr static char query_create_dir_map_table[] =
       "CREATE TABLE filemap ("
       "id INTEGER PRIMARY KEY,"
