@@ -39,13 +39,12 @@ void Database::exec(std::string_view query) const {
   if (auto ret = sqlite3_exec(db.get(), query.data(), nullptr, nullptr, errmsg);
       ret) {
     if (errmsg != nullptr) {
-      std::cerr << "sqlite3_exec error with message: " << *errmsg << std::endl;
+      abort(std::format("sqlite3_exec error with message: {}", *errmsg));
       sqlite3_free(errmsg);
     } else {
-      std::cerr << "sqlite3_exec error without error message. Return num "
-                << ret << std::endl;
+      abort(std::format(
+          "sqlite3_exec error without error message. Return num {}", ret));
     }
-    abort("exec failed");
   }
 }
 

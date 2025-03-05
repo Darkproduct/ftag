@@ -59,21 +59,35 @@ private:
   std::unique_ptr<sqlite3, Deleter> db;
 
   constexpr static char query_create_files_table[] =
-      "CREATE TABLE files (id INTEGER PRIMARY KEY, name TEXT, path TEXT, size "
-      "TEXT, last_modified TEXT)";
+      "CREATE TABLE files ("
+      "id INTEGER PRIMARY KEY,"
+      "name TEXT,"
+      "path TEXT,"
+      "size INTEGER,"
+      "last_modified TEXT)";
   constexpr static char query_create_tags_table[] =
-      "CREATE TABLE tags (id INTEGER PRIMARY KEY, name TEXT)";
+      "CREATE TABLE tags ("
+      "id INTEGER PRIMARY KEY,"
+      "name TEXT)";
   constexpr static char query_create_tag_map_table[] =
-      "CREATE TABLE tagmap (id INTEGER, file_id INTEGER, tag_id INTEGER, "
-      "FOREIGN KEY(file_id) REFERENCES files(id), FOREIGN KEY(tag_id) "
-      "REFERENCES tags(id))";
+      "CREATE TABLE tagmap ("
+      "id INTEGER PRIMARY KEY,"
+      "file_id INTEGER,"
+      "tag_id INTEGER,"
+      "FOREIGN KEY(file_id) REFERENCES files(id),"
+      "FOREIGN KEY(tag_id) REFERENCES tags(id))";
+
   constexpr static char query_create_directories[] =
-      "CREATE TABLE directories (id INTEGER, path TEXT)";
+      "CREATE TABLE directories ("
+      "id INTEGER PRIMARY KEY,"
+      "path TEXT)";
   constexpr static char query_create_dir_map_table[] =
-      "CREATE TABLE filemap (id INTEGER, file_id INTEGER UNIQUE, dir_id "
-      "INTEGER, "
-      "FOREIGN KEY(file_id) REFERENCES files(id), FOREIGN KEY(directories_id) "
-      "REFERENCES directories(id))";
+      "CREATE TABLE filemap ("
+      "id INTEGER PRIMARY KEY,"
+      "file_id INTEGER UNIQUE,"
+      "dir_id INTEGER,"
+      "FOREIGN KEY(file_id) REFERENCES files(id),"
+      "FOREIGN KEY(dir_id) REFERENCES directories(id))";
 
   std::vector<std::string> file_paths;
 };
