@@ -13,12 +13,8 @@ struct sqlite3_stmt;
 
 namespace ftag {
 
-using SQLiteValue = std::variant<std::nullptr_t,  // for SQL NULL values
-                                 int,             // for INTEGER
-                                 double,          // for FLOAT
-                                 std::string,     // for TEXT
-                                 std::vector<std::uint8_t>  // for BLOB
-                                 >;
+using SQLiteValue = std::variant<std::nullptr_t, int, double, std::string,
+                                 std::vector<std::uint8_t>>;
 class Database;
 
 class Statement {

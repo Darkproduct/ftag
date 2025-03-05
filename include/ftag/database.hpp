@@ -62,7 +62,7 @@ private:
       "CREATE TABLE files ("
       "id INTEGER PRIMARY KEY,"
       "name TEXT,"
-      "path TEXT,"
+      "path TEXT UNIQUE,"
       "size INTEGER,"
       "last_modified TEXT)";
   constexpr static char query_create_tags_table[] =

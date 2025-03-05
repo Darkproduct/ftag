@@ -9,6 +9,7 @@
 
 namespace ftag {
 
-void addFilesToDB(std::vector<FileInfo>& files, std::filesystem::path db_path);
+void addFilesToDB(const std::vector<FileInfo>& files,
+                  const std::filesystem::path& db_path);
 
 }  // namespace ftag
