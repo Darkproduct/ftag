@@ -66,13 +66,6 @@ void Statement::bind(const int index, const double value) {
 }
 
 void Statement::bind(const int index, const std::string_view value) {
-  std::cerr << "bind at index " << index << " string_view '" << value
-            << "' size: " << static_cast<int>(value.size()) << std::endl;
-
-  /*const int ret =*/
-  /*    sqlite3_bind_text(stmt.get(), index, value.data(),*/
-  /*                      static_cast<int>(value.size()), SQLITE_TRANSIENT);*/
-
   const int ret =
       sqlite3_bind_text(stmt.get(), index, value.data(),
                         static_cast<int>(value.size()), SQLITE_TRANSIENT);
@@ -162,7 +155,6 @@ template <typename... Types>
 std::optional<std::tuple<Types...>> Statement::executeStep() {
   int return_code = sqlite3_step(stmt.get());
   if (return_code == SQLITE_DONE) {
-    std::cout << "query finished" << std::endl;
     return std::nullopt;
   } else if (return_code == SQLITE_ROW) {
     constexpr std::size_t count = sizeof...(Types);

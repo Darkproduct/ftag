@@ -216,7 +216,7 @@ int main(int argc, char* argv[]) {
   if (program.is_subcommand_used("import")) {
     std::vector<std::string> paths;
     try {
-      paths = import_command.get<std::vector<std::string>>("files");
+      paths = import_command.get<std::vector<std::string>>("paths");
     } catch (std::logic_error) {
       if (!isatty(fileno(stdin))) {
         for (std::string str{}; std::getline(std::cin, str);) {

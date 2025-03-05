@@ -16,7 +16,8 @@ void import(const ImportOptions& options,
     filterFiles(options, findFiles(".", options.ignore_hidden,
                                    options.respect_gitignore));
   } else {
-    std::vector<std::filesystem::path> files(paths.size());
+    std::vector<std::filesystem::path> files;
+    files.reserve(paths.size());
 
     for (const auto& p : paths) {
       if (!std::filesystem::exists(p)) {
