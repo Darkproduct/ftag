@@ -184,6 +184,8 @@ std::vector<std::tuple<Types...>> Statement::execute() {
   return result;
 }
 
+template std::vector<std::tuple<uint64_t>> Statement::execute<uint64_t>();
+
 template std::vector<std::tuple<int64_t, std::string>>
 Statement::execute<int64_t, std::string>();
 

@@ -61,33 +61,33 @@ private:
   constexpr static char query_create_files_table[] =
       "CREATE TABLE files ("
       "id INTEGER PRIMARY KEY,"
-      "name TEXT,"
-      "path TEXT UNIQUE,"
+      "name TEXT NOT NULL,"
+      "path TEXT NOT NULL UNIQUE,"
       "size INTEGER,"
-      "last_modified TEXT)";
+      "last_modified TEXT NOT NULL)";
   constexpr static char query_create_tags_table[] =
       "CREATE TABLE tags ("
       "id INTEGER PRIMARY KEY,"
-      "name TEXT)";
+      "name TEXT NOT NULL UNIQUE)";
   constexpr static char query_create_tag_map_table[] =
       "CREATE TABLE tagmap ("
-      "id INTEGER PRIMARY KEY,"
       "file_id INTEGER,"
       "tag_id INTEGER,"
       "FOREIGN KEY(file_id) REFERENCES files(id),"
-      "FOREIGN KEY(tag_id) REFERENCES tags(id))";
+      "FOREIGN KEY(tag_id) REFERENCES tags(id),"
+      "PRIMARY KEY (file_id, tag_id))";
 
   constexpr static char query_create_directories[] =
       "CREATE TABLE directories ("
       "id INTEGER PRIMARY KEY,"
-      "path TEXT UNIQUE)";
+      "path TEXT NOT NULL UNIQUE)";
   constexpr static char query_create_dir_map_table[] =
       "CREATE TABLE filemap ("
-      "id INTEGER PRIMARY KEY,"
       "file_id INTEGER UNIQUE,"
       "dir_id INTEGER,"
       "FOREIGN KEY(file_id) REFERENCES files(id),"
-      "FOREIGN KEY(dir_id) REFERENCES directories(id))";
+      "FOREIGN KEY(dir_id) REFERENCES directories(id),"
+      "PRIMARY KEY (file_id, dir_id))";
 
   std::vector<std::string> file_paths;
 };

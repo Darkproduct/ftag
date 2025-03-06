@@ -3,8 +3,6 @@
 #include <sqlite3.h>
 
 #include <format>
-#include <iostream>
-#include <ostream>
 #include <string_view>
 
 #include "ftag/abort.hpp"
